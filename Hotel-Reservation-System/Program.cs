@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data.SqlClient;
+
 
 namespace Hotel_Reservation_System
 {
@@ -7,6 +9,7 @@ namespace Hotel_Reservation_System
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!, This is a test 2");
+            Console.WriteLine("Writing another test.");
         }
     }
 }
