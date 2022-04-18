@@ -2,33 +2,91 @@
 using System.IO;
 using System.Data.SqlClient;
 
-
 namespace Hotel_Reservation_System
 {
+
+   
     class Program
     {
+        
+       
         static void Main(string[] args)
         {
+            //here is the login, the user will enter the role they want to login as, must be a guest, employee, or manager
             string login;
             Console.WriteLine("Welcome. Are you signing in as a 'Guest', 'Employee', or 'Manager'?");
-            while(true)
+
+            //only allow a login if they enter a valid account type
+            while (true)
             {   
-                    login = Console.ReadLine();
-                    if((login == "Guest") || (login == "Employee") || (login == "Manager"))
+                login = Console.ReadLine();
+                if((login == "Guest") || (login == "Employee") || (login == "Manager"))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Login. Type 'Guest', 'Employee', or 'Manager' to login as your role.");
+                }
+            }
+
+            //actions that can be performed as a guest:
+            //Making a reservation, cancelling a reservation, rescheduling a reservation, or providing credit card info
+            if(login == "Guest")
+            {
+                string GuestAction;
+                Console.WriteLine("Would you like to 'Make', 'Cancel', or 'Reschedule' a reservation?");
+                Console.WriteLine("Or, if you've already made a 60-Day reservation, Would you like to 'Add' your credit card info?");
+                while(true)
+                {
+                    GuestAction = Console.ReadLine();
+                    if((GuestAction == "Make") || (GuestAction == "Cancel") || (GuestAction == "Reschedule") || (GuestAction == "Add"))
                     {
                         break;
                     }
                     else
                     {
-                        Console.WriteLine("Invalid Login. Type 'Guest', 'Employee', or 'Manager' to login as your role.");
+                        Console.WriteLine("Invalid Action. Enter 'Make', 'Cancel', or 'Reschedule', or 'Add'.");
                     }
+                }
+
+                if(GuestAction == "Make") //Making a reservation
+                {
+                    Reservation.MakeReservation();
+                }
+                if(GuestAction == "Cancel") //Cancelling a reservation
+                {
+                    //Reservation.CancelReserve();
+                }
+                if(GuestAction == "Reschedule") //Rescheduling a reservation
+                {
+                    //Reservation.RescheduleReserve();
+                }
+                if(GuestAction == "Add")
+                {
+                    //Reservation.Add_CC_Info();
+                }
             }
+
+            //actions that can be performed as an employee
+            //
+            if(login == "Employee")
+            {
+
+            }
+            //actions that can be performed as a manager
+            //
+            if(login == "Manager")
+            {
+
+            }
+
 
             
         }
     }
 
-    class Hotel
+    public class Hotel
     {
 
         //This function accepts a string meant to represent a money value
@@ -52,45 +110,103 @@ namespace Hotel_Reservation_System
 
     }
 
-    class Report
+    public class Report
     {
 
     }
 
-    class Reservation
+    public class Reservation
     {
 
         public static void MakeReservation()
         {
+            Console.WriteLine("\nYou are now about to make a reservation.");
+            Console.WriteLine("Which type of reservation would you like to make?");
+            Console.WriteLine("-'P' for Prepaid  -'S' for 60 Day  -'C' for Conventional    -'I' for Incentive");
+            string selectReservation;
+            while(true)
+            {
+                selectReservation = Console.ReadLine();
+                if((selectReservation == "P") || (selectReservation == "S") || (selectReservation == "C") || (selectReservation == "I"))
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid reservation type.");
+                     Console.WriteLine("Enter 'P' for Prepaid, 'S' for 60 Day, 'C' for Conventional, or 'I' Incentive");
+                }
+            }
 
+            if(selectReservation == "P")
+            {
+                //prepaidReserve();
+            }
+            if(selectReservation == "S")
+            {
+                //SixtyDayReserve();
+            }
+            if(selectReservation == "C")
+            {
+                //ConvReserve();
+            }
+            if(selectReservation == "I")
+            {
+                //IncentReserve();
+            }
+            Console.WriteLine("Reservation Complete.");
         }
 
         public static void PrepaidReserve()
         {
-
+            string reserveType = "prepaid";
+            string FName, LName, CCNum;
         }
 
         public static void SixtyDayReserve()
         {
-
+            string reserveType = "sixty";
         }
 
         public static void ConvReserve()
         {
-
+            string reserveType = "conventional";
+            string FName, LName, CCNum;
         }
 
         public static void IncentReserve()
         {
-
+            string reserveType = "incentive";
+            string FName, LName, CCNum;
         }
 
-        public static void SelectDays()
+        //string reserveType will let this function know what days 
+        //to let the guest select from
+        public static void SelectDays(string reserveType)
         {
 
         }
 
         public static void CheckDays()
+        {
+
+        }
+
+        public static void CancelReserve()
+        {
+
+        }
+
+        public static void RescheduleReserve()
+        {
+
+        }
+
+        //get Fname and Lname, check that they have a 60-day reservation
+        //and that credit card info is null, if so, update their reservation
+        //otherwise give message saying 'no reservation for that name' or
+        //'already have credit card info for you'
+        public static void Add_CC_Info()
         {
 
         }
@@ -178,10 +294,6 @@ namespace Hotel_Reservation_System
             }
             return isGoodDate;
         }
-
-
-
-
     }
 
 }
