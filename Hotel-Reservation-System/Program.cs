@@ -8,11 +8,21 @@ namespace Hotel_Reservation_System
    
     class Program
     {
-        
-       
+        //This class allows the program to use the base rate as a global variable
+        //because C# does not support global variables
+        //Whener base rate is referenced in another class, it must be done as
+        //              Program.BaseRate.baseRate;
+        public static class BaseRate
+        {
+            public static double baseRate = 100.0;
+        }
+
+
+
         static void Main(string[] args)
         {
             //here is the login, the user will enter the role they want to login as, must be a guest, employee, or manager
+            Login:
             string login;
             Console.WriteLine("Welcome. Are you signing in as a 'Guest', 'Employee', or 'Manager'?");
 
@@ -32,39 +42,54 @@ namespace Hotel_Reservation_System
 
             //actions that can be performed as a guest:
             //Making a reservation, cancelling a reservation, rescheduling a reservation, or providing credit card info
-            if(login == "Guest")
+            //log out
+            if (login == "Guest")
             {
-                string GuestAction;
-                Console.WriteLine("Would you like to 'Make', 'Cancel', or 'Reschedule' a reservation?");
-                Console.WriteLine("Or, if you've already made a 60-Day reservation, Would you like to 'Add' your credit card info?");
-                while(true)
+                while (true)
                 {
-                    GuestAction = Console.ReadLine();
-                    if((GuestAction == "Make") || (GuestAction == "Cancel") || (GuestAction == "Reschedule") || (GuestAction == "Add"))
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid Action. Enter 'Make', 'Cancel', or 'Reschedule', or 'Add'.");
-                    }
-                }
+                    string GuestAction;
+                    Console.WriteLine("\nWould you like to 'M'ake, 'C'ancel, or 'R'eschedule a reservation?");
+                    Console.WriteLine("Or, if you've already made a 60-Day reservation, 'A'dd your credit card info?");
+                    Console.WriteLine("Enter 'L' to log out.");
 
-                if(GuestAction == "Make") //Making a reservation
-                {
-                    Reservation.MakeReservation();
-                }
-                if(GuestAction == "Cancel") //Cancelling a reservation
-                {
-                    //Reservation.CancelReserve();
-                }
-                if(GuestAction == "Reschedule") //Rescheduling a reservation
-                {
-                    //Reservation.RescheduleReserve();
-                }
-                if(GuestAction == "Add")
-                {
-                    //Reservation.Add_CC_Info();
+                    while (true) // only let users enter a valid command
+                    {
+                        GuestAction = Console.ReadLine();
+
+                        if ((GuestAction == "M") || (GuestAction == "C") || (GuestAction == "R") || (GuestAction == "A") || (GuestAction == "L"))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid Action. Enter 'M'ake, 'C'ancel, 'R'eschedule, 'A'dd, 'L'ogout.");
+                        }
+                    }
+                    //once the user enters a valid command, perform command
+
+                    //add any more guest actions here
+
+                    if (GuestAction == "M") //Making a reservation
+                    {
+                        Reservation.MakeReservation();
+                    }
+                    if (GuestAction == "C") //Cancelling a reservation
+                    {
+                        //Reservation.CancelReserve();
+                    }
+                    if (GuestAction == "R") //Rescheduling a reservation
+                    {
+                        //Reservation.RescheduleReserve();
+                    }
+                    if (GuestAction == "A")
+                    {
+                        //Reservation.Add_CC_Info();
+                    }
+                    if (GuestAction == "L")
+                    {
+                        Console.WriteLine("Logged Out.\n");
+                        goto Login;
+                    }
                 }
             }
 
@@ -72,13 +97,69 @@ namespace Hotel_Reservation_System
             //
             if(login == "Employee")
             {
+                string EmployeeAction;
+                Console.WriteLine("\nWhat function would you like to perform?");
+                Console.WriteLine("Enter 'L' to log out.");
 
+                while (true) //only let users enter a valid command
+                {
+                    EmployeeAction = Console.ReadLine();
+                    if ((EmployeeAction == "L"))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Enter a valid action. 'C' - Change Rate 'L' - Logout");
+                    }
+                }
+                //once the manager enters a valid command, perform it
+
+                //add other employee actions here
+
+                if (EmployeeAction == "L")
+                {
+                    Console.WriteLine("Logged out.\n");
+                    goto Login;
+                }
             }
+
             //actions that can be performed as a manager
-            //
+            //Changing base rate, loging out
             if(login == "Manager")
             {
+                while (true)
+                {
+                    string ManagerAction;
+                    Console.WriteLine("\nWhat function would you like to perform?");
+                    Console.WriteLine("'C' - Change Base Rate; 'L' - Log Out");
 
+                    while (true) //only let users enter a valid command
+                    {
+                        ManagerAction = Console.ReadLine();
+                        if((ManagerAction == "C") || (ManagerAction == "L"))
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Enter a valid action. 'C' - Change Rate 'L' - Logout");
+                        }
+                    }
+                    //once the manager enters a valid command, perform it
+
+                    //add all manager actions here
+
+                    if (ManagerAction == "C")
+                    {
+                        Hotel.ChangeBaseRate();
+                    }
+                    if (ManagerAction == "L")
+                    {
+                        Console.WriteLine("Logged out.\n");
+                        goto Login;
+                    }
+                }
             }
 
 
@@ -88,6 +169,30 @@ namespace Hotel_Reservation_System
 
     public class Hotel
     {
+
+
+        public static void ChangeBaseRate()
+        {
+            Console.WriteLine("Current base rate is: " + Program.BaseRate.baseRate);
+            Console.WriteLine("Enter the new base rate:");
+            while(true)
+            {
+                string baseRateStr = Console.ReadLine();
+                if (IsDouble(baseRateStr) == true)
+                {
+                    Program.BaseRate.baseRate = Convert.ToDouble(baseRateStr);
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Enter a valid rate.");
+                }
+            }
+            Console.WriteLine("New base rate: " + Program.BaseRate.baseRate);
+
+
+
+        }
 
         //This function accepts a string meant to represent a money value
         //it first checks to make sure that the length is at most 16
@@ -103,7 +208,7 @@ namespace Hotel_Reservation_System
             }
             else
             {
-                isGoodDouble = long.TryParse(price, out _);
+                isGoodDouble = double.TryParse(price, out _);
                 return isGoodDouble;
             }
         }
@@ -166,6 +271,7 @@ namespace Hotel_Reservation_System
         public static void SixtyDayReserve()
         {
             string reserveType = "sixty";
+            string Email;
         }
 
         public static void ConvReserve()
@@ -180,16 +286,47 @@ namespace Hotel_Reservation_System
             string FName, LName, CCNum;
         }
 
-        //string reserveType will let this function know what days 
-        //to let the guest select from
-        public static void SelectDays(string reserveType)
+        //string reserveType will let this function know what days to let the guest select from, it will then take the dates 
+        //as a string and check that they are in valid format with the ValidDate() function. once ValidDate() accepts the two
+        //strings entered by the user, this function will call CheckDays() to see if those days are open, if CheckDays() returns
+        //True, then the days selected by the user are valid and SelectDays() will return true to let the reservation functions
+        //know the user's reservation can be made
+        public static bool SelectDays(string reserveType)
         {
 
+            if(reserveType == "prepaid")
+            {
+                //get todays date and add 90 days to it, user must choose days >= 90 days
+
+
+                return true;
+            }
+            if(reserveType == "sixty")
+            {
+                //get todays date and add 60 to it, user must choose days >= 60 days
+
+
+                return true;
+            }
+            if(reserveType == "conventional")
+            {
+                return true;
+            }
+            if(reserveType == "incentive")
+            {
+                return true;
+            }
+            return true;
         }
 
-        public static void CheckDays()
+        //Once the user has entered the start and end date the function accept the two strings and calculates
+        //the range between the two days. From there, for every day in the range it will use the SELECT COUNT
+        //query to see how many rows (reservations) exist on each day in the range, if any of the days checked
+        //returns a value equal to 45, then that day is full and the function will return false
+        //if every day is good, the return true
+        public static bool CheckDays(string startDate, string endDate)
         {
-
+            return true;
         }
 
         public static void CancelReserve()
