@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Data.SqlClient;
 
 
@@ -8,9 +9,22 @@ namespace Hotel_Reservation_System
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!, This is a test 2");
-            Console.WriteLine("Writing another test.");
-            Console.WriteLine("Harish made a change!");
+            string login;
+            Console.WriteLine("Welcome. Are you signing in as a 'Guest', 'Employee', or 'Manager'?");
+            while(true)
+            {   
+                    login = Console.ReadLine();
+                    if((login == "Guest") || (login == "Employee") || (login == "Manager"))
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid Login. Type 'Guest', 'Employee', or 'Manager' to login as your role.");
+                    }
+            }
+
+            
         }
     }
 
