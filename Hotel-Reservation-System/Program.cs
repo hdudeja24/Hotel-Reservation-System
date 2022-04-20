@@ -99,7 +99,7 @@ namespace Hotel_Reservation_System
                     }
                     if (GuestAction == "A") //adding credit card info to a 60-day
                     {
-                        //Reservation.Add_CC_Info();
+                        Reservation.Add_CC_Info();
                     }
                     if (GuestAction == "L") // logging out
                     {
@@ -598,12 +598,41 @@ namespace Hotel_Reservation_System
         }
 
         //get Fname and Lname, check that they have a 60-day reservation
-        //and that credit card info is null, if so, update their reservation
-        //otherwise give message saying 'no reservation for that name' or
-        //'already have credit card info for you'
+        //update their reservation otherwise give message saying 'no
+        //reservation for that name' or 'already have credit card info for you'
         public static void Add_CC_Info()
         {
+            string FName, LName, CCNum;
+            Console.WriteLine("Enter your first name:");
+            FName = Console.ReadLine();
+            Console.WriteLine("Enter your last name:");
+            LName = Console.ReadLine();
+            Console.WriteLine("Enter your credit card information.");
+            while(true)
+            {
+                CCNum = Console.ReadLine();
+                if(CC_payment(CCNum) == true)
+                {
+                    break;
+                }
+                Console.WriteLine("Enter a valid credit card number.");
+            }
 
+            using SqlConnection newConnection = new(Program.GlobalClass.ConnectionStr());
+            SqlCommand UpdateTest = new("UPDATE Reservations SET CCNum = " + CCNum + "WHERE FName = '" + FName + "' AND LName = '" + LName + "' AND reserveType = 'sixty'", newConnection);
+            UpdateTest.Connection.Open();
+            try
+            {
+                if (UpdateTest.ExecuteNonQuery() > 0)
+                    Console.WriteLine("Credit card number updated successfully.");
+                else
+                    Console.WriteLine("No 60-Day reservation exists for that day.");
+            }
+            catch
+            {
+                Console.WriteLine("Error occurred while attempting UPDATE.");
+            }
+            UpdateTest.Connection.Close();
         }
 
 
