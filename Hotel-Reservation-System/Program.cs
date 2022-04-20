@@ -316,11 +316,18 @@ namespace Hotel_Reservation_System
             Console.WriteLine("Reservation Complete.");
         }
 
+        //This function is called by makeReservation() when the guest selects to make a prepaid(90-day)
+        //reservation, it will take the guests first and last name, then a valid credit card number
+        //Then, it will call selectDays so that the guest can choose the duration of their stay
+        //it will then calculate the number of nights the guest is staying and the total price
+        //of their stay, it then uploads all of this information to the database
         public static void PrepaidReserve()
         {
             string reserveType = "prepaid";
             string FName, LName, CCNum, startDate, endDate;
             string[] days;
+            int dayDiff;
+            double totalPrice;
 
             //get first and last name and cc number
             Console.WriteLine("Enter your first name:");
@@ -328,7 +335,7 @@ namespace Hotel_Reservation_System
             Console.WriteLine("Enter your last name:");
             LName = Console.ReadLine();
             Console.WriteLine("Enter your credit card number:");
-            while (true)
+            while (true) //we need a valid credit card number
             {
                 CCNum = Console.ReadLine();
                 if (CC_payment(CCNum) == true)
@@ -338,36 +345,38 @@ namespace Hotel_Reservation_System
                 else
                     Console.WriteLine("Invalid credit card number. Please re-enter your CC Number:");
             }
-            days = SelectDays(reserveType); //days[0] = start; days[1] = end;
+            //selecting start and end days
+            days = SelectDays(reserveType);
             startDate = days[0];
             endDate = days[1];
 
+            //calculating the number of nights for the total price of the stay
             DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
-            int a = (end.Date - start.Date).Days;
-            double totalPrice = a * Program.GlobalClass.baseRate;
+            dayDiff = (end.Date - start.Date).Days;
+            totalPrice = dayDiff * Program.GlobalClass.baseRate;
 
-
-
+            //the sql insert command for all of the reservation info
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
             SqlCommand InsertTest = new("INSERT INTO Reservations(Fname, Lname, CCNum, reserveType, " +
-                                     "startDate, endDate, checkedIn, baseRate, totalPrice) VALUES ('" + FName + "','" + LName+ "','"+ CCNum+ "','"+ reserveType+"','"+ startDate+ "','" + endDate + "'," + 0 + "," + Program.GlobalClass.baseRate + ","+ totalPrice +")", newConnection);
+                                     "startDate, endDate, checkedIn, baseRate, totalPrice) VALUES ('" + FName 
+                                     + "','" + LName+ "','"+ CCNum+ "','"+ reserveType+"','"+ startDate+ "','" 
+                                     + endDate + "'," + 0 + "," + Program.GlobalClass.baseRate + ","+ totalPrice 
+                                     +")", newConnection);
             InsertTest.Connection.Open();
             try
             {
                 if (InsertTest.ExecuteNonQuery() > 0)
-                    Console.WriteLine("Prepaid reservation made.");
+                    Console.WriteLine("Prepaid reservation made."); //reservation is in database
                 else
                     Console.WriteLine("Insert statement FAILED!");
             }
             catch
             {
-                Console.WriteLine("Error occurred while attempting INSERT.");
+                Console.WriteLine("Error occurred while making Prepaid Reservation.");
             }
             InsertTest.Connection.Close();
-            
-
         }
 
         public static void SixtyDayReserve()
@@ -401,15 +410,14 @@ namespace Hotel_Reservation_System
             {
                 string prepaidDate = DateTime.Now.AddDays(90).ToString("yyyy-MM-dd"); //90 days from today
                 Console.WriteLine("Select a day at or after " + prepaidDate);
-
-                while(true)
+                while(true) //we need a date in the correct format that is at least 90 days from today
                 {
                     Console.WriteLine("Enter a starting day for your reservation in format yyyy-MM-dd");
                     startDay = Console.ReadLine();
-                    if(ValidDate(startDay) == true)
+                    if(ValidDate(startDay) == true) //if were in the correct format
                     {
                         int a = String.Compare(startDay, prepaidDate);
-                        if(a < 0)
+                        if(a < 0) //if start day is before prepaid day it is invalid
                         {
                             Console.WriteLine("Start date must be at least " + prepaidDate);
                             continue;
@@ -417,13 +425,13 @@ namespace Hotel_Reservation_System
                         break;
                     }
                 }
-                while (true)
+                while (true) //end date must be a valid number
                 {
                     Console.WriteLine("Enter an end date in yyyy-MM-dd format.");
                     endDay = Console.ReadLine();
                     if (ValidDate(endDay) == true)
                     {
-                        int a = String.Compare(startDay, endDay);
+                        int a = String.Compare(startDay, endDay); //it must be after the start date
                         if(a >= 0)
                         {
                             Console.WriteLine("End date must be after start date");
@@ -433,12 +441,11 @@ namespace Hotel_Reservation_System
                     }
                 }
 
-                //call checkDays() here
-
+                //************ call checkDays() here ****************//
 
                 days[0] = startDay; 
                 days[1] = endDay; 
-                return days;
+                return days; //return the array storing our start and end days
             }
             if (reserveType == "sixty")
             {
