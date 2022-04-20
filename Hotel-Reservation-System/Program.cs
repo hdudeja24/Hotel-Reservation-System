@@ -300,7 +300,7 @@ namespace Hotel_Reservation_System
             }
             if (selectReservation == "S")
             {
-                //SixtyDayReserve();
+                SixtyDayReserve();
             }
             if (selectReservation == "C")
             {
@@ -379,7 +379,50 @@ namespace Hotel_Reservation_System
         public static void SixtyDayReserve()
         {
             string reserveType = "sixty";
-            string Email;
+            string FName, LName, Email, startDate, endDate;
+            string[] days;
+            int dayDiff;
+            double totalPrice;
+
+            //get first and last name and cc number
+            Console.WriteLine("Enter your first name:");
+            FName = Console.ReadLine();
+            Console.WriteLine("Enter your last name:");
+            LName = Console.ReadLine();
+            Console.WriteLine("Enter your email.");
+            Email = Console.ReadLine();
+            //selecting start and end days
+            days = SelectDays(reserveType);
+            startDate = days[0];
+            endDate = days[1];
+
+            //calculating the number of nights for the total price of the stay
+            DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            dayDiff = (end.Date - start.Date).Days;
+            totalPrice = dayDiff * Program.GlobalClass.baseRate;
+
+            //the sql insert command for all of the reservation info
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            SqlCommand InsertTest = new("INSERT INTO Reservations(Fname, Lname, Email, reserveType, " +
+                                     "startDate, endDate, checkedIn, baseRate, totalPrice) VALUES ('" + FName
+                                     + "','" + LName + "','" + Email + "','" + reserveType + "','" + startDate + "','"
+                                     + endDate + "'," + 0 + "," + Program.GlobalClass.baseRate + "," + totalPrice
+                                     + ")", newConnection);
+            InsertTest.Connection.Open();
+            try
+            {
+                if (InsertTest.ExecuteNonQuery() > 0)
+                    Console.WriteLine("60-Day reservation made."); //reservation is in database
+                else
+                    Console.WriteLine("Insert statement FAILED!");
+            }
+            catch
+            {
+                Console.WriteLine("Error occurred while making 60-Day Reservation.");
+            }
+            InsertTest.Connection.Close();
         }
 
         public static void ConvReserve()
@@ -403,6 +446,7 @@ namespace Hotel_Reservation_System
         {
             string [] days = new string[2];
             string startDay, endDay;
+
             if (reserveType == "prepaid")
             {
                 string prepaidDate = DateTime.Now.AddDays(90).ToString("yyyy-MM-dd"); //90 days from today
@@ -451,13 +495,57 @@ namespace Hotel_Reservation_System
                 Console.WriteLine("Please choose a different duration of stay.");
                 goto SelectPrepaidDays;
             }
+
             if (reserveType == "sixty")
             {
                 //get todays date and add 60 to it, user must choose days >= 60 days
+                string prepaidDate = DateTime.Now.AddDays(60).ToString("yyyy-MM-dd"); //60 days from today
+                Console.WriteLine("Select a day at or after " + prepaidDate);
+            SelectSixtyDays:
+                while (true) //we need a date in the correct format that is at least 60 days from today
+                {
+                    Console.WriteLine("Enter a starting day for your reservation in format yyyy-MM-dd");
+                    startDay = Console.ReadLine();
+                    if (ValidDate(startDay) == true) //if were in the correct format
+                    {
+                        int a = String.Compare(startDay, prepaidDate);
+                        if (a < 0) //if start day is before prepaid day it is invalid
+                        {
+                            Console.WriteLine("Start date must be at least " + prepaidDate);
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                while (true) //end date must be a valid number
+                {
+                    Console.WriteLine("Enter an end date in yyyy-MM-dd format.");
+                    endDay = Console.ReadLine();
+                    if (ValidDate(endDay) == true)
+                    {
+                        int a = String.Compare(startDay, endDay); //it must be after the start date
+                        if (a >= 0)
+                        {
+                            Console.WriteLine("End date must be after start date");
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                //make sure there is an occupancy for the duration
+                bool goodDuration = CheckDays(startDay, endDay);
 
-
-                return days;
+                if (goodDuration == true)
+                {
+                    days[0] = startDay;
+                    days[1] = endDay;
+                    return days; //return the array storing our start and end days
+                }
+                Console.WriteLine("There is an occupancy conflict for that duration.");
+                Console.WriteLine("Please choose a different duration of stay.");
+                goto SelectSixtyDays;
             }
+
             if (reserveType == "conventional")
             {
                 return days;
