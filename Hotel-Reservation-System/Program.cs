@@ -10,24 +10,29 @@ namespace Hotel_Reservation_System
     {
         //This class allows the program to use the base rate as a global variable
         //because C# does not support global variables
-        //Whener base rate is referenced in another class, it must be done as
+        //Whenever base rate is referenced in another class, it must be done as
         //              Program.BaseRate.baseRate;
+        //this also conatains the function that retrieves the connection strings
         public static class GlobalClass
         {
             public static double baseRate = 100.0;
 
             public static string ConnectionStr()
             {
-                string HunterfilePath = "C:\\Users\\hhowa\\Source\\Repos\\hdudeja24\\Hotel-Reservation-System\\Hotel-Reservation-System\\HunterConnectionString.txt";
-                using FileStream file = File.OpenRead(HunterfilePath);
+                //you two will need to create a text file that contains your connection string to the database
+                //then you will need to create a string conatining the file path on your computer to the text
+                //file containing  your connection string, we will need to change the variable in the 
+                //File.OpenRead function below to the name of the string containing our filepath each time
+                //we want to run the code on our computer
+
+                string HarrishFilePath;
+                string HitsFilePath;
+                string HunterFilePath = "C:\\Users\\hhowa\\Source\\Repos\\hdudeja24\\Hotel-Reservation-System\\Hotel-Reservation-System\\HunterConnectionString.txt";
+                using FileStream file = File.OpenRead(HunterFilePath); //change this variable to the string of your filepath
                 using var stream = new StreamReader(file);
                 return stream.ReadLine();
             }
-
-
-
         }
-
 
 
         static void Main(string[] args)
@@ -92,11 +97,11 @@ namespace Hotel_Reservation_System
                     {
                         //Reservation.RescheduleReserve();
                     }
-                    if (GuestAction == "A")
+                    if (GuestAction == "A") //adding credit card info to a 60-day
                     {
                         //Reservation.Add_CC_Info();
                     }
-                    if (GuestAction == "L")
+                    if (GuestAction == "L") // logging out
                     {
                         Console.WriteLine("Logged Out.\n");
                         goto Login;
@@ -121,7 +126,7 @@ namespace Hotel_Reservation_System
                     }
                     else
                     {
-                        Console.WriteLine("Enter a valid action. 'C' - Change Rate 'L' - Logout");
+                        Console.WriteLine("Enter a valid action.'L' - Logout");
                     }
                 }
                 //once the manager enters a valid command, perform it
@@ -185,8 +190,6 @@ namespace Hotel_Reservation_System
 
     public class Hotel
     {
-
-
         public static void ChangeBaseRate()
         {
             Console.WriteLine("Current base rate is: " + Program.GlobalClass.baseRate);
@@ -205,9 +208,6 @@ namespace Hotel_Reservation_System
                 }
             }
             Console.WriteLine("New base rate: " + Program.GlobalClass.baseRate);
-
-
-
         }
 
         //This function accepts a string meant to represent a money value
@@ -228,7 +228,6 @@ namespace Hotel_Reservation_System
                 return isGoodDouble;
             }
         }
-
     }
 
     public class Report
