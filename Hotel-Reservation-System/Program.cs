@@ -351,7 +351,7 @@ namespace Hotel_Reservation_System
             DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             dayDiff = (end.Date - start.Date).Days;
-            totalPrice = dayDiff * Program.GlobalClass.baseRate;
+            totalPrice = dayDiff * (Program.GlobalClass.baseRate * 0.75);
 
             //the sql insert command for all of the reservation info
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
@@ -367,7 +367,7 @@ namespace Hotel_Reservation_System
                 if (InsertTest.ExecuteNonQuery() > 0)
                     Console.WriteLine("Prepaid reservation made."); //reservation is in database
                 else
-                    Console.WriteLine("Insert statement FAILED!");
+                    Console.WriteLine("Unable to make reservation.");
             }
             catch
             {
@@ -400,7 +400,7 @@ namespace Hotel_Reservation_System
             DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             dayDiff = (end.Date - start.Date).Days;
-            totalPrice = dayDiff * Program.GlobalClass.baseRate;
+            totalPrice = dayDiff * (Program.GlobalClass.baseRate * 0.85);
 
             //the sql insert command for all of the reservation info
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
@@ -416,7 +416,7 @@ namespace Hotel_Reservation_System
                 if (InsertTest.ExecuteNonQuery() > 0)
                     Console.WriteLine("60-Day reservation made."); //reservation is in database
                 else
-                    Console.WriteLine("Insert statement FAILED!");
+                    Console.WriteLine("Unable to make reservation.");
             }
             catch
             {
@@ -626,11 +626,11 @@ namespace Hotel_Reservation_System
                 if (UpdateTest.ExecuteNonQuery() > 0)
                     Console.WriteLine("Credit card number updated successfully.");
                 else
-                    Console.WriteLine("No 60-Day reservation exists for that day.");
+                    Console.WriteLine("No 60-Day reservation exists for that name.");
             }
             catch
             {
-                Console.WriteLine("Error occurred while attempting UPDATE.");
+                Console.WriteLine("Error occurred while attempting to update credit card info.");
             }
             UpdateTest.Connection.Close();
         }
