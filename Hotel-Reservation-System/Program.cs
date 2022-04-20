@@ -153,7 +153,7 @@ namespace Hotel_Reservation_System
                     while (true) //only let users enter a valid command
                     {
                         ManagerAction = Console.ReadLine();
-                        if ((ManagerAction == "C") || (ManagerAction == "L"))
+                        if ((ManagerAction == "C") || (ManagerAction == "L") || (ManagerAction == "O"))
                         {
                             break;
                         }
@@ -407,6 +407,7 @@ namespace Hotel_Reservation_System
             {
                 string prepaidDate = DateTime.Now.AddDays(90).ToString("yyyy-MM-dd"); //90 days from today
                 Console.WriteLine("Select a day at or after " + prepaidDate);
+                SelectPrepaidDays:
                 while(true) //we need a date in the correct format that is at least 90 days from today
                 {
                     Console.WriteLine("Enter a starting day for your reservation in format yyyy-MM-dd");
@@ -437,12 +438,18 @@ namespace Hotel_Reservation_System
                         break;
                     }
                 }
+                //make sure there is an occupancy for the duration
+                bool goodDuration = CheckDays(startDay, endDay);
 
-                //************ call checkDays() here ****************//
-
-                days[0] = startDay; 
-                days[1] = endDay; 
-                return days; //return the array storing our start and end days
+                if(goodDuration == true)
+                {
+                    days[0] = startDay;
+                    days[1] = endDay;
+                    return days; //return the array storing our start and end days
+                }
+                Console.WriteLine("There is an occupancy conflict for that duration.");
+                Console.WriteLine("Please choose a different duration of stay.");
+                goto SelectPrepaidDays;
             }
             if (reserveType == "sixty")
             {
@@ -466,10 +473,30 @@ namespace Hotel_Reservation_System
         //the range between the two days. From there, for every day in the range it will use the SELECT COUNT
         //query to see how many rows (reservations) exist on each day in the range, if any of the days checked
         //returns a value equal to 45, then that day is full and the function will return false
-        //if every day is good, the return true
+        //if every day is good, update the occupancy array for each day, then return true
         public static bool CheckDays(string startDate, string endDate)
         {
-            return true;
+            string date = DateTime.Now.ToString("yyyy-MM-dd"); //get todays date
+            //turn todays date, the start date, and the end date into DateTime objects so we can do math on them
+            DateTime today = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+
+            int startDif = (start.Date - today.Date).Days; //how far away is the start date from today
+            int endDif = (end.Date - today.Date).Days;  //how far away is the end date from today
+
+            for(int i = startDif; i < endDif; i++) //check the occupancy array over the duration of the stay
+            {
+                if(num_OccupiedRooms[i] >= 45) //if we have a day that is fully occupied
+                {
+                    return false; //duration is not acceptable
+                }
+            }
+            for (int i = startDif; i < endDif; i++) //if the duration is good, update the occupancy array
+            {
+                num_OccupiedRooms[i]++;
+            }
+            return true; //otherwise, accept duration
         }
 
         public static void CancelReserve()
