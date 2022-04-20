@@ -299,7 +299,7 @@ namespace Hotel_Reservation_System
 
             if (selectReservation == "P")
             {
-                //prepaidReserve();
+                PrepaidReserve();
             }
             if (selectReservation == "S")
             {
@@ -320,7 +320,9 @@ namespace Hotel_Reservation_System
         {
             string reserveType = "prepaid";
             string FName, LName, CCNum, startDate, endDate;
+            string[] days;
 
+            //get first and last name and cc number
             Console.WriteLine("Enter your first name:");
             FName = Console.ReadLine();
             Console.WriteLine("Enter your last name:");
@@ -336,16 +338,26 @@ namespace Hotel_Reservation_System
                 else
                     Console.WriteLine("Invalid credit card number. Please re-enter your CC Number:");
             }
-            //SelectDays(reserveType);
-            /*
+            days = SelectDays(reserveType); //days[0] = start; days[1] = end;
+            startDate = days[0];
+            endDate = days[1];
+
+            DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            int a = (end.Date - start.Date).Days;
+            double totalPrice = a * Program.GlobalClass.baseRate;
+
+
+
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
-            SqlCommand InsertTest = ("INSERT INTO Table_1(Name, year) VALUES ('" + AddName + "'," + Year + ")", newConnection);
+            SqlCommand InsertTest = new("INSERT INTO Reservations(Fname, Lname, CCNum, reserveType, " +
+                                     "startDate, endDate, checkedIn, baseRate, totalPrice) VALUES ('" + FName + "','" + LName+ "','"+ CCNum+ "','"+ reserveType+"','"+ startDate+ "','" + endDate + "'," + 0 + "," + Program.GlobalClass.baseRate + ","+ totalPrice +")", newConnection);
             InsertTest.Connection.Open();
             try
             {
                 if (InsertTest.ExecuteNonQuery() > 0)
-                    Console.WriteLine("INSERT statement successful");
+                    Console.WriteLine("Prepaid reservation made.");
                 else
                     Console.WriteLine("Insert statement FAILED!");
             }
@@ -354,7 +366,7 @@ namespace Hotel_Reservation_System
                 Console.WriteLine("Error occurred while attempting INSERT.");
             }
             InsertTest.Connection.Close();
-            */
+            
 
         }
 
@@ -379,34 +391,71 @@ namespace Hotel_Reservation_System
         //string reserveType will let this function know what days to let the guest select from, it will then take the dates 
         //as a string and check that they are in valid format with the ValidDate() function. once ValidDate() accepts the two
         //strings entered by the user, this function will call CheckDays() to see if those days are open, if CheckDays() returns
-        //True, then the days selected by the user are valid and SelectDays() will return true to let the reservation functions
-        //know the user's reservation can be made
-        public static bool SelectDays(string reserveType)
+        //True, then the days selected by the user are valid and SelectDays() will return an array containing two strings representing
+        //the start date in index 0 and the end date in index 1
+        public static string[] SelectDays(string reserveType)
         {
-
+            string [] days = new string[2];
+            string startDay, endDay;
             if (reserveType == "prepaid")
             {
-                //get todays date and add 90 days to it, user must choose days >= 90 days
+                string prepaidDate = DateTime.Now.AddDays(90).ToString("yyyy-MM-dd"); //90 days from today
+                Console.WriteLine("Select a day at or after " + prepaidDate);
+
+                while(true)
+                {
+                    Console.WriteLine("Enter a starting day for your reservation in format yyyy-MM-dd");
+                    startDay = Console.ReadLine();
+                    if(ValidDate(startDay) == true)
+                    {
+                        int a = String.Compare(startDay, prepaidDate);
+                        if(a < 0)
+                        {
+                            Console.WriteLine("Start date must be at least " + prepaidDate);
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                while (true)
+                {
+                    Console.WriteLine("Enter an end date in yyyy-MM-dd format.");
+                    endDay = Console.ReadLine();
+                    if (ValidDate(endDay) == true)
+                    {
+                        int a = String.Compare(startDay, endDay);
+                        if(a >= 0)
+                        {
+                            Console.WriteLine("End date must be after start date");
+                            continue;
+                        }
+                        break;
+                    }
+                }
+
+                //call checkDays() here
 
 
-                return true;
+                days[0] = startDay; 
+                days[1] = endDay; 
+                return days;
             }
             if (reserveType == "sixty")
             {
                 //get todays date and add 60 to it, user must choose days >= 60 days
 
 
-                return true;
+                return days;
             }
             if (reserveType == "conventional")
             {
-                return true;
+                return days;
             }
             if (reserveType == "incentive")
             {
-                return true;
+                return days;
             }
-            return true;
+            return days;
         }
 
         //Once the user has entered the start and end date the function accept the two strings and calculates
