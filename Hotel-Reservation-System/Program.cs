@@ -234,48 +234,46 @@ namespace Hotel_Reservation_System
     public class Report
     {
         // Generates the Expected Occupancy Report given the current date and file path. (Only management can access this function)
-        /*
-        public static void expectedOccupancy(string filePath, DateTime date) 
-        { 
-             double occupancy_rate = 0;
-             DateTime currentDate = "";
-             using(StreamWriter sw = File.CreateText(filePath)) 
-             {
-                sw.WriteLine("Date       " + "Prepaid Reservation  " + "60-Day Reservation  " + "Conventional Reservation  " + "Incentive Reservation  " + "Total Number of Rooms Reserved");
-                for(int i = 1; i <= 30; i++) 
-                {
-                   currentDate = date.AddDays(i);
-                   sw.Write(currentDate.ToString("yyyy-MM-dd") + " ");
-                    sw.Write(Reservation.num_PrepaidReservation[i].ToString + "                   ");
-                   sw.Write(Reservation.num_60DayReservation[i].ToString + "                  ");
-                   sw.Write(Reservation.num_ConventionalReservation[i].ToString + "                        ");
-                   sw.Write(Reservation.num_IncentiveReservation[i].ToString + "                     ");
-                   sw.WriteLine(Reservation.num_OccupiedRooms[i].ToString);
-                   occupancy_rate = ((Reservation.num_OccupiedRooms[i])/45)*100 + occupancy_rate;
-                }
-                sw.WriteLine("Average Expected Occupancy Rate: " + (occupancy_rate/30) + "%");
-                Console.WriteLine("Expected Occupancy Report successfully created in desired directory.");
-             }
-        
+        public static void expectedOccupancy(string filePath, DateTime date)
+        {
+            int i = 1;
+            double occupancy_rate = 0;
+            DateTime currentDate;
+            using StreamWriter sw = File.CreateText(filePath);
+
+            sw.WriteLine("Date       " + "Prepaid Reservation  " + "60-Day Reservation  " + "Conventional Reservation  " + "Incentive Reservation  " + "Total Number of Rooms Reserved");
+            while (i <= 30)
+            {
+                currentDate = date.AddDays(i);
+                sw.Write(currentDate.ToString("yyyy-MM-dd") + " ");
+                sw.Write(Reservation.num_PrepaidReservation[i].ToString() + "                   ");
+                sw.Write(Reservation.num_60DayReservation[i].ToString() + "                  ");
+                sw.Write(Reservation.num_ConventionalReservation[i].ToString() + "                        ");
+                sw.Write(Reservation.num_IncentiveReservation[i].ToString() + "                     ");
+                sw.WriteLine(Reservation.num_OccupiedRooms[i].ToString());
+                occupancy_rate = ((Reservation.num_OccupiedRooms[i]) / 45)*100 + occupancy_rate;
+                i++;
+            }
+            sw.WriteLine("Average Expected Occupancy Rate: " + (occupancy_rate / 30) + "%");
+            Console.WriteLine("Expected Occupancy Report successfully created in desired directory.");
         }
 
         public static void roomIncomeReport(string filePath, DateTime date) 
         {
             
         }
-        */
+        
     }
 
     public class Reservation
     {
         // Arrays store the number of occupied rooms and reservation type for each day from current day.
-        /*
-        public int num_OccupiedRooms[] = new int[365];
-        public int num_PrepaidReservation[] = new int[365];
-        public int num_ConventionalReservation[] = new int[365];
-        public int num_IncentiveReservation[] = new int[365];
-        public int num_60DayReservation[] = new int[365];
-        */
+        // The elements in the arrays are updated accordingly every time a guest checks in or checks out.
+        public static int[] num_OccupiedRooms = new int[365];
+        public static int[] num_PrepaidReservation = new int[365];
+        public static int[] num_ConventionalReservation = new int[365];
+        public static int[] num_IncentiveReservation = new int[365];
+        public static int[] num_60DayReservation = new int[365];
 
         public static void MakeReservation()
         {
