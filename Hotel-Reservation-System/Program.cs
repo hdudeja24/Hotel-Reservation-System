@@ -229,12 +229,12 @@ namespace Hotel_Reservation_System
                 {
                    currentDate = date.AddDays(i);
                    sw.Write(currentDate.ToString("yyyy-MM-dd") + " ");
-                   sw.Write(Reservation.num_PrepaidReservation[i].ToString + "                   ")
+                    sw.Write(Reservation.num_PrepaidReservation[i].ToString + "                   ");
                    sw.Write(Reservation.num_60DayReservation[i].ToString + "                  ");
                    sw.Write(Reservation.num_ConventionalReservation[i].ToString + "                        ");
                    sw.Write(Reservation.num_IncentiveReservation[i].ToString + "                     ");
                    sw.WriteLine(Reservation.num_OccupiedRooms[i].ToString);
-                   occupancy_rate = (Reservation.num_OccupiedRooms[i])/45)*100 + occupancy_rate;
+                   occupancy_rate = ((Reservation.num_OccupiedRooms[i])/45)*100 + occupancy_rate;
                 }
                 sw.WriteLine("Average Expected Occupancy Rate: " + (occupancy_rate/30) + "%");
                 Console.WriteLine("Expected Occupancy Report successfully created in desired directory.");
@@ -250,11 +250,11 @@ namespace Hotel_Reservation_System
     public class Reservation
     {
         // Arrays store the number of occupied rooms and reservation type for each day from current day.
-        int num_OccupiedRooms[] = new int[365];
-        int num_PrepaidReservation[] = new int[365];
-        int num_ConventionalReservation[] = new int[365];
-        int num_IncentiveReservation[] = new int[365];
-        int num_60DayReservation[] = new int[365];
+        public int num_OccupiedRooms[] = new int[365];
+        public int num_PrepaidReservation[] = new int[365];
+        public int num_ConventionalReservation[] = new int[365];
+        public int num_IncentiveReservation[] = new int[365];
+        public int num_60DayReservation[] = new int[365];
          
         public static void MakeReservation()
         {
