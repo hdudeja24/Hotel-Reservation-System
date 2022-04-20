@@ -5,32 +5,43 @@ using System.Data.SqlClient;
 namespace Hotel_Reservation_System
 {
 
-   
+
     class Program
     {
         //This class allows the program to use the base rate as a global variable
         //because C# does not support global variables
         //Whener base rate is referenced in another class, it must be done as
         //              Program.BaseRate.baseRate;
-        public static class BaseRate
+        public static class GlobalClass
         {
             public static double baseRate = 100.0;
+
+            public static string ConnectionStr()
+            {
+                string HunterfilePath = "C:\\Users\\hhowa\\Source\\Repos\\hdudeja24\\Hotel-Reservation-System\\Hotel-Reservation-System\\HunterConnectionString.txt";
+                using FileStream file = File.OpenRead(HunterfilePath);
+                using var stream = new StreamReader(file);
+                return stream.ReadLine();
+            }
+
+
+
         }
 
 
 
         static void Main(string[] args)
         {
-            //here is the login, the user will enter the role they want to login as, must be a guest, employee, or manager
-            Login:
+        //here is the login, the user will enter the role they want to login as, must be a guest, employee, or manager
+        Login:
             string login;
             Console.WriteLine("Welcome. Are you signing in as a 'Guest', 'Employee', or 'Manager'?");
 
             //only allow a login if they enter a valid account type
             while (true)
-            {   
+            {
                 login = Console.ReadLine();
-                if((login == "Guest") || (login == "Employee") || (login == "Manager"))
+                if ((login == "Guest") || (login == "Employee") || (login == "Manager"))
                 {
                     break;
                 }
@@ -95,7 +106,7 @@ namespace Hotel_Reservation_System
 
             //actions that can be performed as an employee
             //
-            if(login == "Employee")
+            if (login == "Employee")
             {
                 string EmployeeAction;
                 Console.WriteLine("\nWhat function would you like to perform?");
@@ -126,7 +137,7 @@ namespace Hotel_Reservation_System
 
             //actions that can be performed as a manager
             //Changing base rate, loging out
-            if(login == "Manager")
+            if (login == "Manager")
             {
                 while (true)
                 {
@@ -137,13 +148,13 @@ namespace Hotel_Reservation_System
                     while (true) //only let users enter a valid command
                     {
                         ManagerAction = Console.ReadLine();
-                        if((ManagerAction == "C") || (ManagerAction == "L"))
+                        if ((ManagerAction == "C") || (ManagerAction == "L"))
                         {
                             break;
                         }
                         else
                         {
-                            Console.WriteLine("Enter a valid action. 'C' - Change Rate 'L' - Logout");
+                            Console.WriteLine("Enter a valid action. 'C' - Change Rate 'L' - Logout 'O' - Expected Occupany Report");
                         }
                     }
                     //once the manager enters a valid command, perform it
@@ -154,6 +165,11 @@ namespace Hotel_Reservation_System
                     {
                         Hotel.ChangeBaseRate();
                     }
+                    if (ManagerAction == "O")
+                    {
+                        //need to add here a filepath and a todays date
+                        //Report.expectedOccupancy();
+                    }
                     if (ManagerAction == "L")
                     {
                         Console.WriteLine("Logged out.\n");
@@ -163,7 +179,7 @@ namespace Hotel_Reservation_System
             }
 
 
-            
+
         }
     }
 
@@ -173,14 +189,14 @@ namespace Hotel_Reservation_System
 
         public static void ChangeBaseRate()
         {
-            Console.WriteLine("Current base rate is: " + Program.BaseRate.baseRate);
+            Console.WriteLine("Current base rate is: " + Program.GlobalClass.baseRate);
             Console.WriteLine("Enter the new base rate:");
-            while(true)
+            while (true)
             {
                 string baseRateStr = Console.ReadLine();
                 if (IsDouble(baseRateStr) == true)
                 {
-                    Program.BaseRate.baseRate = Convert.ToDouble(baseRateStr);
+                    Program.GlobalClass.baseRate = Convert.ToDouble(baseRateStr);
                     break;
                 }
                 else
@@ -188,7 +204,7 @@ namespace Hotel_Reservation_System
                     Console.WriteLine("Enter a valid rate.");
                 }
             }
-            Console.WriteLine("New base rate: " + Program.BaseRate.baseRate);
+            Console.WriteLine("New base rate: " + Program.GlobalClass.baseRate);
 
 
 
@@ -216,8 +232,9 @@ namespace Hotel_Reservation_System
     }
 
     public class Report
-    { 
+    {
         // Generates the Expected Occupancy Report given the current date and file path. (Only management can access this function)
+        /*
         public static void expectedOccupancy(string filePath, DateTime date) 
         { 
              double occupancy_rate = 0;
@@ -239,56 +256,60 @@ namespace Hotel_Reservation_System
                 sw.WriteLine("Average Expected Occupancy Rate: " + (occupancy_rate/30) + "%");
                 Console.WriteLine("Expected Occupancy Report successfully created in desired directory.");
              }
+        
         }
 
         public static void roomIncomeReport(string filePath, DateTime date) 
         {
             
         }
+        */
     }
 
     public class Reservation
     {
         // Arrays store the number of occupied rooms and reservation type for each day from current day.
+        /*
         public int num_OccupiedRooms[] = new int[365];
         public int num_PrepaidReservation[] = new int[365];
         public int num_ConventionalReservation[] = new int[365];
         public int num_IncentiveReservation[] = new int[365];
         public int num_60DayReservation[] = new int[365];
-         
+        */
+
         public static void MakeReservation()
         {
             Console.WriteLine("\nYou are now about to make a reservation.");
             Console.WriteLine("Which type of reservation would you like to make?");
             Console.WriteLine("-'P' for Prepaid  -'S' for 60 Day  -'C' for Conventional    -'I' for Incentive");
             string selectReservation;
-            while(true)
+            while (true)
             {
                 selectReservation = Console.ReadLine();
-                if((selectReservation == "P") || (selectReservation == "S") || (selectReservation == "C") || (selectReservation == "I"))
+                if ((selectReservation == "P") || (selectReservation == "S") || (selectReservation == "C") || (selectReservation == "I"))
                 {
                     break;
                 }
                 else
                 {
                     Console.WriteLine("Invalid reservation type.");
-                     Console.WriteLine("Enter 'P' for Prepaid, 'S' for 60 Day, 'C' for Conventional, or 'I' Incentive");
+                    Console.WriteLine("Enter 'P' for Prepaid, 'S' for 60 Day, 'C' for Conventional, or 'I' Incentive");
                 }
             }
 
-            if(selectReservation == "P")
+            if (selectReservation == "P")
             {
                 //prepaidReserve();
             }
-            if(selectReservation == "S")
+            if (selectReservation == "S")
             {
                 //SixtyDayReserve();
             }
-            if(selectReservation == "C")
+            if (selectReservation == "C")
             {
                 //ConvReserve();
             }
-            if(selectReservation == "I")
+            if (selectReservation == "I")
             {
                 //IncentReserve();
             }
@@ -298,7 +319,43 @@ namespace Hotel_Reservation_System
         public static void PrepaidReserve()
         {
             string reserveType = "prepaid";
-            string FName, LName, CCNum;
+            string FName, LName, CCNum, startDate, endDate;
+
+            Console.WriteLine("Enter your first name:");
+            FName = Console.ReadLine();
+            Console.WriteLine("Enter your last name:");
+            LName = Console.ReadLine();
+            Console.WriteLine("Enter your credit card number:");
+            while (true)
+            {
+                CCNum = Console.ReadLine();
+                if (CC_payment(CCNum) == true)
+                {
+                    break;
+                }
+                else
+                    Console.WriteLine("Invalid credit card number. Please re-enter your CC Number:");
+            }
+            //SelectDays(reserveType);
+            /*
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            SqlCommand InsertTest = ("INSERT INTO Table_1(Name, year) VALUES ('" + AddName + "'," + Year + ")", newConnection);
+            InsertTest.Connection.Open();
+            try
+            {
+                if (InsertTest.ExecuteNonQuery() > 0)
+                    Console.WriteLine("INSERT statement successful");
+                else
+                    Console.WriteLine("Insert statement FAILED!");
+            }
+            catch
+            {
+                Console.WriteLine("Error occurred while attempting INSERT.");
+            }
+            InsertTest.Connection.Close();
+            */
+
         }
 
         public static void SixtyDayReserve()
@@ -327,25 +384,25 @@ namespace Hotel_Reservation_System
         public static bool SelectDays(string reserveType)
         {
 
-            if(reserveType == "prepaid")
+            if (reserveType == "prepaid")
             {
                 //get todays date and add 90 days to it, user must choose days >= 90 days
 
 
                 return true;
             }
-            if(reserveType == "sixty")
+            if (reserveType == "sixty")
             {
                 //get todays date and add 60 to it, user must choose days >= 60 days
 
 
                 return true;
             }
-            if(reserveType == "conventional")
+            if (reserveType == "conventional")
             {
                 return true;
             }
-            if(reserveType == "incentive")
+            if (reserveType == "incentive")
             {
                 return true;
             }
@@ -411,29 +468,29 @@ namespace Hotel_Reservation_System
         public static bool ValidDate(string Date)
         {
             bool isGoodDate = true;
-            if(Date.Length != 10)
+            if (Date.Length != 10)
             {
                 isGoodDate = false;
                 return isGoodDate;
             }
-            if((Date[4] != '-') || (Date[7] != '-'))
+            if ((Date[4] != '-') || (Date[7] != '-'))
             {
                 isGoodDate = false;
                 return isGoodDate;
             }
-            if(!Char.IsDigit(Date[0]) || !Char.IsDigit(Date[1]) || !Char.IsDigit(Date[2]) || !Char.IsDigit(Date[3]) 
+            if (!Char.IsDigit(Date[0]) || !Char.IsDigit(Date[1]) || !Char.IsDigit(Date[2]) || !Char.IsDigit(Date[3])
             || !Char.IsDigit(Date[5]) || !Char.IsDigit(Date[6]) || !Char.IsDigit(Date[8]) || !Char.IsDigit(Date[9]))
             {
                 isGoodDate = false;
                 return isGoodDate;
             }
-        
+
             string monthStr = Date.Substring(5, 2);
             string dayStr = Date.Substring(8, 2);
             int month = int.Parse(monthStr);
             int day = int.Parse(dayStr);
 
-            if((month < 1) || (month > 12))
+            if ((month < 1) || (month > 12))
             {
                 isGoodDate = false;
                 return isGoodDate;
@@ -446,7 +503,7 @@ namespace Hotel_Reservation_System
                     return isGoodDate;
                 }
             }
-            else if((month == 4) || (month == 6) || (month == 9) || (month == 11))
+            else if ((month == 4) || (month == 6) || (month == 9) || (month == 11))
             {
                 if ((day < 1) || (day > 30))
                 {
@@ -454,7 +511,7 @@ namespace Hotel_Reservation_System
                     return isGoodDate;
                 }
             }
-            else if(month == 2)
+            else if (month == 2)
             {
                 if ((day < 1) || (day > 28))
                 {
