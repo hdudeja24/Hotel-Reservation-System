@@ -304,13 +304,12 @@ namespace Hotel_Reservation_System
             }
             if (selectReservation == "C")
             {
-                //ConvReserve();
+                ConvReserve();
             }
             if (selectReservation == "I")
             {
                 //IncentReserve();
             }
-            Console.WriteLine("Reservation Complete.");
         }
 
         //This function is called by makeReservation() when the guest selects to make a prepaid(90-day)
@@ -427,13 +426,66 @@ namespace Hotel_Reservation_System
 
         public static void ConvReserve()
         {
-            string reserveType = "conventional";
-            string FName, LName, CCNum;
+            string reserveType = "convent";
+            string FName, LName, CCNum, startDate, endDate;
+            string[] days;
+            int dayDiff;
+            double totalPrice;
+
+            //get first and last name and cc number
+            Console.WriteLine("Enter your first name:");
+            FName = Console.ReadLine();
+            Console.WriteLine("Enter your last name:");
+            LName = Console.ReadLine();
+            Console.WriteLine("Enter your credit card number:");
+            while (true) //we need a valid credit card number
+            {
+                CCNum = Console.ReadLine();
+                if (CC_payment(CCNum) == true)
+                {
+                    break;
+                }
+                else
+                    Console.WriteLine("Invalid credit card number. Please re-enter your CC Number:");
+            }
+            //selecting start and end days
+            days = SelectDays(reserveType);
+            startDate = days[0];
+            endDate = days[1];
+
+            //calculating the number of nights for the total price of the stay
+            DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            dayDiff = (end.Date - start.Date).Days;
+            totalPrice = dayDiff * (Program.GlobalClass.baseRate);
+
+            //the sql insert command for all of the reservation info
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            SqlCommand InsertTest = new("INSERT INTO Reservations(Fname, Lname, CCNum, reserveType, " +
+                                     "startDate, endDate, checkedIn, baseRate, totalPrice) VALUES ('" + FName
+                                     + "','" + LName + "','" + CCNum + "','" + reserveType + "','" + startDate + "','"
+                                     + endDate + "'," + 0 + "," + Program.GlobalClass.baseRate + "," + totalPrice
+                                     + ")", newConnection);
+            InsertTest.Connection.Open();
+            try
+            {
+                if (InsertTest.ExecuteNonQuery() > 0)
+                    Console.WriteLine("Conventional reservation made."); //reservation is in database
+                else
+                    Console.WriteLine("Unable to make reservation.");
+            }
+            catch
+            {
+                Console.WriteLine("Error occurred while making Conventional Reservation.");
+            }
+            InsertTest.Connection.Close();
+
         }
 
         public static void IncentReserve()
         {
-            string reserveType = "incentive";
+            string reserveType = "incent";
             string FName, LName, CCNum;
         }
 
@@ -483,7 +535,7 @@ namespace Hotel_Reservation_System
                     }
                 }
                 //make sure there is an occupancy for the duration
-                bool goodDuration = CheckDays(startDay, endDay);
+                bool goodDuration = CheckDays(startDay, endDay, reserveType);
 
                 if(goodDuration == true)
                 {
@@ -496,11 +548,16 @@ namespace Hotel_Reservation_System
                 goto SelectPrepaidDays;
             }
 
+            /*
+             * 
+             * 60 day reservation
+             * 
+             */
             if (reserveType == "sixty")
             {
                 //get todays date and add 60 to it, user must choose days >= 60 days
-                string prepaidDate = DateTime.Now.AddDays(60).ToString("yyyy-MM-dd"); //60 days from today
-                Console.WriteLine("Select a day at or after " + prepaidDate);
+                string sixtyDate = DateTime.Now.AddDays(60).ToString("yyyy-MM-dd"); //60 days from today
+                Console.WriteLine("Select a day at or after " + sixtyDate);
             SelectSixtyDays:
                 while (true) //we need a date in the correct format that is at least 60 days from today
                 {
@@ -508,10 +565,10 @@ namespace Hotel_Reservation_System
                     startDay = Console.ReadLine();
                     if (ValidDate(startDay) == true) //if were in the correct format
                     {
-                        int a = String.Compare(startDay, prepaidDate);
+                        int a = String.Compare(startDay, sixtyDate);
                         if (a < 0) //if start day is before prepaid day it is invalid
                         {
-                            Console.WriteLine("Start date must be at least " + prepaidDate);
+                            Console.WriteLine("Start date must be at least " + sixtyDate);
                             continue;
                         }
                         break;
@@ -533,7 +590,7 @@ namespace Hotel_Reservation_System
                     }
                 }
                 //make sure there is an occupancy for the duration
-                bool goodDuration = CheckDays(startDay, endDay);
+                bool goodDuration = CheckDays(startDay, endDay, reserveType);
 
                 if (goodDuration == true)
                 {
@@ -545,12 +602,60 @@ namespace Hotel_Reservation_System
                 Console.WriteLine("Please choose a different duration of stay.");
                 goto SelectSixtyDays;
             }
-
-            if (reserveType == "conventional")
+            /*
+             * 
+             * Conventional
+             * 
+             */
+            if (reserveType == "convent")
             {
-                return days;
+                string today = DateTime.Now.ToString("yyyy-MM-dd"); //today
+                Console.WriteLine("Select a day at or after " + today);
+            SelectConventionalDays:
+                while (true) //we need a date in the correct format that is at least today
+                {
+                    Console.WriteLine("Enter a starting day for your reservation in format yyyy-MM-dd");
+                    startDay = Console.ReadLine();
+                    if (ValidDate(startDay) == true) //if were in the correct format
+                    {
+                        int a = String.Compare(startDay, today);
+                        if (a < 0) //if start day is before prepaid day it is invalid
+                        {
+                            Console.WriteLine("Start date must be at least " + today);
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                while (true) //end date must be a valid number
+                {
+                    Console.WriteLine("Enter an end date in yyyy-MM-dd format.");
+                    endDay = Console.ReadLine();
+                    if (ValidDate(endDay) == true)
+                    {
+                        int a = String.Compare(startDay, endDay); //it must be after the start date
+                        if (a >= 0)
+                        {
+                            Console.WriteLine("End date must be after start date");
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                //make sure there is an occupancy for the duration
+                bool goodDuration = CheckDays(startDay, endDay, reserveType);
+
+                if (goodDuration == true)
+                {
+                    days[0] = startDay;
+                    days[1] = endDay;
+                    return days; //return the array storing our start and end days
+                }
+                Console.WriteLine("There is an occupancy conflict for that duration.");
+                Console.WriteLine("Please choose a different duration of stay.");
+                goto SelectConventionalDays;
             }
-            if (reserveType == "incentive")
+            if (reserveType == "incent")
             {
                 return days;
             }
@@ -562,7 +667,7 @@ namespace Hotel_Reservation_System
         //query to see how many rows (reservations) exist on each day in the range, if any of the days checked
         //returns a value equal to 45, then that day is full and the function will return false
         //if every day is good, update the occupancy array for each day, then return true
-        public static bool CheckDays(string startDate, string endDate)
+        public static bool CheckDays(string startDate, string endDate, string reserveType)
         {
             string date = DateTime.Now.ToString("yyyy-MM-dd"); //get todays date
             //turn todays date, the start date, and the end date into DateTime objects so we can do math on them
@@ -581,8 +686,16 @@ namespace Hotel_Reservation_System
                 }
             }
             for (int i = startDif; i < endDif; i++) //if the duration is good, update the occupancy array
-            {
+            {                                       //and array corresponding to reservation type
                 num_OccupiedRooms[i]++;
+                if(reserveType == "prepaid")
+                    num_PrepaidReservation[i]++;
+                else if(reserveType == "sixty")
+                    num_60DayReservation[i]++;
+                else if(reserveType == "convent")
+                    num_ConventionalReservation[i]++;
+                else if(reserveType == "incent")
+                    num_IncentiveReservation[i]++;
             }
             return true; //otherwise, accept duration
         }
