@@ -147,6 +147,7 @@ namespace Hotel_Reservation_System
                 while (true)
                 {
                     string ManagerAction;
+                    string filePath = "";
                     Console.WriteLine("\nWhat function would you like to perform?");
                     Console.WriteLine("'C' - Change Base Rate; 'L' - Log Out");
 
@@ -172,8 +173,15 @@ namespace Hotel_Reservation_System
                     }
                     if (ManagerAction == "O")
                     {
-                        //need to add here a filepath and a todays date
-                        //Report.expectedOccupancy();
+                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+                        filePath = Console.ReadLine();
+                        while (filePath == null) 
+                        {
+                            Console.WriteLine("Please try again: ");
+                            filePath = Console.ReadLine();
+                        }
+                        DateTime date = DateTime.Now;
+                        Report.expectedOccupancy(filePath, date);
                     }
                     if (ManagerAction == "L")
                     {
@@ -250,18 +258,33 @@ namespace Hotel_Reservation_System
                 sw.Write(Reservation.num_ConventionalReservation[i].ToString() + "                        ");
                 sw.Write(Reservation.num_IncentiveReservation[i].ToString() + "                     ");
                 sw.WriteLine(Reservation.num_OccupiedRooms[i].ToString());
-                occupancy_rate = ((Reservation.num_OccupiedRooms[i]) / 45)*100 + occupancy_rate;
+                occupancy_rate = ((Reservation.num_OccupiedRooms[i]) / 45) * 100 + occupancy_rate;
                 i++;
             }
             sw.WriteLine("Average Expected Occupancy Rate: " + (occupancy_rate / 30) + "%");
             Console.WriteLine("Expected Occupancy Report successfully created in desired directory.");
         }
 
-        public static void roomIncomeReport(string filePath, DateTime date) 
+        public static void roomIncomeReport(string filePath, DateTime date)
         {
-            
+            int i = 1;
+            double total_income = 0;
+            DateTime currentDate;
+            using StreamWriter sw = File.CreateText(filePath);
+            sw.WriteLine("Date       " + "Expected Income($)");
+            while (i <= 30)
+            {
+                currentDate = date.AddDays(i);
+                sw.Write(currentDate.ToString("yyyy-MM-dd") + " ");
+                sw.WriteLine(Reservation.income_array[i].ToString());
+                total_income = total_income + Reservation.income_array[i];
+                i++;
+            }
+            sw.WriteLine("Total Income for 30-day period: " + total_income);
+            sw.WriteLine("Average Income for 30-day period: " + (total_income / 30));
+            Console.WriteLine("Room Income Report successfully created in desired directory.");
         }
-        
+
     }
 
     public class Reservation
@@ -273,6 +296,9 @@ namespace Hotel_Reservation_System
         public static int[] num_ConventionalReservation = new int[365];
         public static int[] num_IncentiveReservation = new int[365];
         public static int[] num_60DayReservation = new int[365];
+        public static int[] baseRate = new int[365];
+        public static int[] income_array = new int[365];
+        public static int[] incentiveDiscount = new int[365];
 
         public static void MakeReservation()
         {
@@ -356,10 +382,10 @@ namespace Hotel_Reservation_System
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
             SqlCommand InsertTest = new("INSERT INTO Reservations(Fname, Lname, CCNum, reserveType, " +
-                                     "startDate, endDate, checkedIn, baseRate, totalPrice) VALUES ('" + FName 
-                                     + "','" + LName+ "','"+ CCNum+ "','"+ reserveType+"','"+ startDate+ "','" 
-                                     + endDate + "'," + 0 + "," + Program.GlobalClass.baseRate + ","+ totalPrice 
-                                     +")", newConnection);
+                                     "startDate, endDate, checkedIn, baseRate, totalPrice) VALUES ('" + FName
+                                     + "','" + LName + "','" + CCNum + "','" + reserveType + "','" + startDate + "','"
+                                     + endDate + "'," + 0 + "," + Program.GlobalClass.baseRate + "," + totalPrice
+                                     + ")", newConnection);
             InsertTest.Connection.Open();
             try
             {
@@ -496,22 +522,22 @@ namespace Hotel_Reservation_System
         //the start date in index 0 and the end date in index 1
         public static string[] SelectDays(string reserveType)
         {
-            string [] days = new string[2];
+            string[] days = new string[2];
             string startDay, endDay;
 
             if (reserveType == "prepaid")
             {
                 string prepaidDate = DateTime.Now.AddDays(90).ToString("yyyy-MM-dd"); //90 days from today
                 Console.WriteLine("Select a day at or after " + prepaidDate);
-                SelectPrepaidDays:
-                while(true) //we need a date in the correct format that is at least 90 days from today
+            SelectPrepaidDays:
+                while (true) //we need a date in the correct format that is at least 90 days from today
                 {
                     Console.WriteLine("Enter a starting day for your reservation in format yyyy-MM-dd");
                     startDay = Console.ReadLine();
-                    if(ValidDate(startDay) == true) //if were in the correct format
+                    if (ValidDate(startDay) == true) //if were in the correct format
                     {
                         int a = String.Compare(startDay, prepaidDate);
-                        if(a < 0) //if start day is before prepaid day it is invalid
+                        if (a < 0) //if start day is before prepaid day it is invalid
                         {
                             Console.WriteLine("Start date must be at least " + prepaidDate);
                             continue;
@@ -526,7 +552,7 @@ namespace Hotel_Reservation_System
                     if (ValidDate(endDay) == true)
                     {
                         int a = String.Compare(startDay, endDay); //it must be after the start date
-                        if(a >= 0)
+                        if (a >= 0)
                         {
                             Console.WriteLine("End date must be after start date");
                             continue;
@@ -537,7 +563,7 @@ namespace Hotel_Reservation_System
                 //make sure there is an occupancy for the duration
                 bool goodDuration = CheckDays(startDay, endDay, reserveType);
 
-                if(goodDuration == true)
+                if (goodDuration == true)
                 {
                     days[0] = startDay;
                     days[1] = endDay;
@@ -678,9 +704,9 @@ namespace Hotel_Reservation_System
             int startDif = (start.Date - today.Date).Days; //how far away is the start date from today
             int endDif = (end.Date - today.Date).Days;  //how far away is the end date from today
 
-            for(int i = startDif; i < endDif; i++) //check the occupancy array over the duration of the stay
+            for (int i = startDif; i < endDif; i++) //check the occupancy array over the duration of the stay
             {
-                if(num_OccupiedRooms[i] >= 45) //if we have a day that is fully occupied
+                if (num_OccupiedRooms[i] >= 45) //if we have a day that is fully occupied
                 {
                     return false; //duration is not acceptable
                 }
@@ -688,13 +714,13 @@ namespace Hotel_Reservation_System
             for (int i = startDif; i < endDif; i++) //if the duration is good, update the occupancy array
             {                                       //and array corresponding to reservation type
                 num_OccupiedRooms[i]++;
-                if(reserveType == "prepaid")
+                if (reserveType == "prepaid")
                     num_PrepaidReservation[i]++;
-                else if(reserveType == "sixty")
+                else if (reserveType == "sixty")
                     num_60DayReservation[i]++;
-                else if(reserveType == "convent")
+                else if (reserveType == "convent")
                     num_ConventionalReservation[i]++;
-                else if(reserveType == "incent")
+                else if (reserveType == "incent")
                     num_IncentiveReservation[i]++;
             }
             return true; //otherwise, accept duration
@@ -721,10 +747,10 @@ namespace Hotel_Reservation_System
             Console.WriteLine("Enter your last name:");
             LName = Console.ReadLine();
             Console.WriteLine("Enter your credit card information.");
-            while(true)
+            while (true)
             {
                 CCNum = Console.ReadLine();
-                if(CC_payment(CCNum) == true)
+                if (CC_payment(CCNum) == true)
                 {
                     break;
                 }
