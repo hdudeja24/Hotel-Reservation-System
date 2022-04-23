@@ -124,7 +124,7 @@ namespace Hotel_Reservation_System
                         //getting the guests reservation type, conventional and incentive reservations pay a cencellation fee
                         //if they cancel less than 3 days before their reservation starts
                         string reserveType = Reservation.getReserveType(FName, LName).Trim();
-                        if((reserveType == "convent") || (reserveType == "incent"))
+                        if ((reserveType == "convent") || (reserveType == "incent"))
                         {
                             string startDay = Reservation.getStartDate(FName, LName);
                             Console.WriteLine(startDay);
@@ -132,7 +132,7 @@ namespace Hotel_Reservation_System
                             DateTime start = DateTime.ParseExact(startDay, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
                             DateTime today = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
                             int a = (start.Date - today.Date).Days;
-                            if(a < 3) //if less than three days from the start of their reservation generate fee
+                            if (a < 3) //if less than three days from the start of their reservation generate fee
                             {
                                 double cancelFee = Reservation.getDayOneBaseRate(FName, LName);
                                 cancelFee *= 1.1;
@@ -199,12 +199,12 @@ namespace Hotel_Reservation_System
                     string ManagerAction;
                     string filePath = "";
                     Console.WriteLine("\nWhat function would you like to perform?");
-                    Console.WriteLine("'C' - Change Base Rate; 'L' - Log Out");
+                    Console.WriteLine("'C' - Change Base Rate; 'O' - Print Expected Occupancy Report; 'E' - Print Expected Room Income Report; 'I' - Print Incentive Report; 'L' - Log Out");
 
                     while (true) //only let users enter a valid command
                     {
                         ManagerAction = Console.ReadLine();
-                        if ((ManagerAction == "C") || (ManagerAction == "L") || (ManagerAction == "O"))
+                        if ((ManagerAction == "C") || (ManagerAction == "L") || (ManagerAction == "O") || (ManagerAction == "E") || (ManagerAction == "I"))
                         {
                             break;
                         }
@@ -225,13 +225,37 @@ namespace Hotel_Reservation_System
                     {
                         Console.WriteLine("Please provide file name and path to save report in desired directory:");
                         filePath = Console.ReadLine();
-                        while (filePath == null) 
+                        while (filePath == null)
                         {
                             Console.WriteLine("Please try again: ");
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
                         Report.expectedOccupancy(filePath, date);
+                    }
+                    if (ManagerAction == "E") 
+                    {
+                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+                        filePath = Console.ReadLine();
+                        while (filePath == null)
+                        {
+                            Console.WriteLine("Please try again: ");
+                            filePath = Console.ReadLine();
+                        }
+                        DateTime date = DateTime.Now;
+                        Report.roomIncomeReport(filePath, date);
+                    }
+                    if (ManagerAction == "I") 
+                    {
+                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+                        filePath = Console.ReadLine();
+                        while (filePath == null)
+                        {
+                            Console.WriteLine("Please try again: ");
+                            filePath = Console.ReadLine();
+                        }
+                        DateTime date = DateTime.Now;
+                        Report.incentiveReport(filePath, date);
                     }
                     if (ManagerAction == "L")
                     {
@@ -259,10 +283,10 @@ namespace Hotel_Reservation_System
             DateTime today = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             string changeDay;
             Console.WriteLine("Change the base rate for which day?");
-            while(true)
+            while (true)
             {
                 changeDay = Console.ReadLine();
-                if(Reservation.ValidDate(changeDay) == true)
+                if (Reservation.ValidDate(changeDay) == true)
                 {
                     int a = String.Compare(changeDay, date); //returns negative value if sd < ed; 0 if theyre ==, positive value if sd > ed
                     if (a >= 0)
@@ -363,6 +387,38 @@ namespace Hotel_Reservation_System
             Console.WriteLine("Room Income Report successfully created in desired directory.");
         }
 
+        //Generates the incentive report given the current date and file path. (this functions is only called by management)
+        public static void incentiveReport(string filePath, DateTime date) 
+        {
+            int i = 1;
+            double total_discount = 0;
+            DateTime currentDate;
+            using StreamWriter sw = File.CreateText(filePath);
+            sw.WriteLine("Date       " + "Total Incentive Discount($)");
+            while (i <= 30)
+            {
+                currentDate = date.AddDays(i);
+                sw.Write(currentDate.ToString("yyyy-MM-dd") + " ");
+                sw.WriteLine(Reservation.incentiveDiscount[i].ToString());
+                total_discount = total_discount + Reservation.incentiveDiscount[i];
+                i++;
+            }
+            sw.WriteLine("Total Incentive Discount for 30-day period: " + total_discount);
+            sw.WriteLine("Average Incentive Discount for 30-day period: " + (total_discount / 30));
+            Console.WriteLine("Incentive Report successfully created in desired directory.");
+        }
+
+        // Generates list of guests who are expected to arrive on given day. Contains: guest name, reservation type, assigned room number, and date of departure.  
+        public static void dailyArrivals(string filePath, DateTime date) 
+        {
+            //the sql select command  to get all rows corresponding to startDate = date
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '"+ date.ToString("yyyy-MM-dd")+"'", newConnection);
+            SelectTest.Connection.Open();
+            
+        }
+
     }
 
     public class Reservation
@@ -381,7 +437,7 @@ namespace Hotel_Reservation_System
         //this function initializes the baseRate array
         public static void initializeBaseRateArr()
         {
-            for(int i = 0; i < 365; i++)
+            for (int i = 0; i < 365; i++)
             {
                 baseRate[i] = 100.00;
             }
@@ -469,7 +525,7 @@ namespace Hotel_Reservation_System
             int startDif = (start.Date - today.Date).Days; //how far away is the start date from today
             int endDif = (end.Date - today.Date).Days;  //how far away is the end date from today
 
-            for(int i = startDif ; i < endDif; i++) // update the total price and the income array
+            for (int i = startDif; i < endDif; i++) // update the total price and the income array
             {
                 income_array[i] += (baseRate[i] * .75);
                 totalPrice += (baseRate[i] * .75);
@@ -1024,14 +1080,14 @@ namespace Hotel_Reservation_System
             int startDif = (start.Date - today.Date).Days; //how far away is the start date from today
             int endDif = (end.Date - today.Date).Days;  //how far away is the end date from today
 
-            for(int i = startDif; i < endDif; i++)
+            for (int i = startDif; i < endDif; i++)
             {
-                if(reserveType == "convent")
+                if (reserveType == "convent")
                 {
                     income_array[i] -= baseRate[i];
                     num_ConventionalReservation[i]--;
                 }
-                else if(reserveType == "prepaid")
+                else if (reserveType == "prepaid")
                 {
                     income_array[i] -= (baseRate[i] * .75);
                     num_PrepaidReservation[i]--;
