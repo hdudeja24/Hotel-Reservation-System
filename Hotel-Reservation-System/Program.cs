@@ -165,13 +165,14 @@ namespace Hotel_Reservation_System
                 while (true)
                 {
                     string EmployeeAction;
+                    string filePath = "";
                     Console.WriteLine("\nWhat function would you like to perform?");
-                    Console.WriteLine("'L' - Log Out");
+                    Console.WriteLine(" 'A' - Daily Arrivals Report; 'O' - Daily Occupancy Report; 'L' - Log Out");
 
                     while (true) //only let users enter a valid command
                     {
                         EmployeeAction = Console.ReadLine();
-                        if ((EmployeeAction == "L"))
+                        if ((EmployeeAction == "L") || (EmployeeAction == "A") || (EmployeeAction == "O"))
                         {
                             break;
                         }
@@ -187,6 +188,23 @@ namespace Hotel_Reservation_System
                     {
                         Console.WriteLine("Logged out.\n");
                         goto Login;
+                    }
+                    if (EmployeeAction == "A") 
+                    {
+                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+                        filePath = Console.ReadLine();
+                        while (filePath == null)
+                        {
+                            Console.WriteLine("Please try again: ");
+                            filePath = Console.ReadLine();
+                        }
+                        DateTime date = DateTime.Now;
+                        Report.dailyArrivals(filePath, date);
+                    }
+                    if (EmployeeAction == "O") 
+                    {
+                        
+
                     }
                 }
             }
@@ -414,9 +432,25 @@ namespace Hotel_Reservation_System
             //the sql select command  to get all rows corresponding to startDate = date
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
-            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '"+ date.ToString("yyyy-MM-dd")+"'", newConnection);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' ORDER BY Fname", newConnection);
             SelectTest.Connection.Open();
-            
+            SqlDataReader sqlReader;
+            using StreamWriter sw = File.CreateText(filePath);
+            sw.WriteLine("First Name Last Name   Reservation type   Date of Departure");
+            try
+            {
+                sqlReader = SelectTest.ExecuteReader();
+                while(sqlReader.Read())
+                {
+                    sw.WriteLine(String.Format("{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                }
+            }
+            catch 
+            {
+                Console.WriteLine("Error occurred while attempting SELECT.");
+            }
+            SelectTest.Connection.Close();
+            Console.WriteLine("Daily Arrival Report successfully created in desired directory.");
         }
 
     }
