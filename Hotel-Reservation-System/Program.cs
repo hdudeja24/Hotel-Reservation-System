@@ -38,10 +38,10 @@ namespace Hotel_Reservation_System
                 //File.OpenRead function below to the name of the string containing our filepath each time
                 //we want to run the code on our computer
 
-                string HarrishFilePath;
+                string HarishFilePath = "C:\\Users\\haris\\Downloads\\connect.txt";
                 string HitsFilePath;
                 string HunterFilePath = "C:\\Users\\hhowa\\Source\\Repos\\hdudeja24\\Hotel-Reservation-System\\Hotel-Reservation-System\\HunterConnectionString.txt";
-                using FileStream file = File.OpenRead(HunterFilePath); //change this variable to the string of your filepath
+                using FileStream file = File.OpenRead(HarishFilePath); //change this variable to the string of your filepath
                 using var stream = new StreamReader(file);
                 return stream.ReadLine();
             }
@@ -178,7 +178,7 @@ namespace Hotel_Reservation_System
                         }
                         else
                         {
-                            Console.WriteLine("Enter a valid action.'L' - Logout");
+                            Console.WriteLine("Enter a valid action. 'A' - Daily Arrivals Report; 'O' - Daily Occupancy Report; 'L' - Log Out");
                         }
                     }
                     //once the employee enters a valid command, perform it
@@ -228,7 +228,7 @@ namespace Hotel_Reservation_System
                         }
                         else
                         {
-                            Console.WriteLine("Enter a valid action. 'C' - Change Rate 'L' - Logout 'O' - Expected Occupany Report");
+                            Console.WriteLine("Enter a valid action. 'C' - Change Base Rate; 'O' - Print Expected Occupancy Report; 'E' - Print Expected Room Income Report; 'I' - Print Incentive Report; 'L' - Log Out");
                         }
                     }
                     //once the manager enters a valid command, perform it
@@ -733,7 +733,84 @@ namespace Hotel_Reservation_System
         public static void IncentReserve()
         {
             string reserveType = "incent";
-            string FName, LName, CCNum;
+            string FName, LName, CCNum, startDate, endDate;
+            string[] days;
+            double totalPrice = 0;
+
+            //get first and last name and cc number
+            Console.WriteLine("Enter your first name:");
+            FName = Console.ReadLine();
+            Console.WriteLine("Enter your last name:");
+            LName = Console.ReadLine();
+            Console.WriteLine("Enter your credit card number:");
+            while (true) //we need a valid credit card number
+            {
+                CCNum = Console.ReadLine();
+                if (CC_payment(CCNum) == true)
+                {
+                    break;
+                }
+                else
+                    Console.WriteLine("Invalid credit card number. Please re-enter your CC Number:");
+            }
+            days = SelectDays(reserveType);
+            startDate = days[0];
+            endDate = days[1];
+
+            //calculating the number of nights for the total price of the stay
+            string date = DateTime.Now.ToString("yyyy-MM-dd"); //get todays date
+            //turn todays date, the start date, and the end date into DateTime objects so we can do math on them
+            DateTime today = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            int startDif = (start.Date - today.Date).Days; //how far away is the start date from today
+            int endDif = (end.Date - today.Date).Days;  //how far away is the end date from today
+
+            //Calculate average expected occupancy rate
+            double occupancyRate = 0;
+            double average_occupancyRate = 0;
+            for (int i = startDif; i < endDif; i++) 
+            {
+                occupancyRate = occupancyRate + (Reservation.num_OccupiedRooms[i] / 45) * 100;
+            }
+            average_occupancyRate = occupancyRate / (endDif - startDif + 1);
+            //Incentive reservation can only be made if average occupancy rate < 60%.
+            if (average_occupancyRate >= 60) 
+            {
+                Console.WriteLine("Incentive Reservation does not apply for this duration.");
+                return;
+            }
+
+            // update the total, the income array, and the incentive_discount array.
+            for (int i = startDif; i < endDif; i++) 
+            {
+                income_array[i] += (0.80*baseRate[i]);
+                totalPrice += (0.80*baseRate[i]);
+                incentiveDiscount[i] = incentiveDiscount[i] + 0.20 * baseRate[i];
+            }
+            double day1BaseRate = baseRate[startDif];
+
+            //the sql insert command for all of the reservation info
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            SqlCommand InsertTest = new("INSERT INTO Reservations(Fname, Lname, CCNum, reserveType, " +
+                                     "startDate, endDate, checkedIn, baseRate, totalPrice) VALUES ('" + FName
+                                     + "','" + LName + "','" + CCNum + "','" + reserveType + "','" + startDate + "','"
+                                     + endDate + "'," + 0 + "," + day1BaseRate + "," + totalPrice
+                                     + ")", newConnection);
+            InsertTest.Connection.Open();
+            try
+            {
+                if (InsertTest.ExecuteNonQuery() > 0)
+                    Console.WriteLine("Incentive reservation made."); //reservation is in database
+                else
+                    Console.WriteLine("Unable to make reservation.");
+            }
+            catch
+            {
+                Console.WriteLine("Error occurred while making Incentive Reservation.");
+            }
+            InsertTest.Connection.Close();
         }
 
         //string reserveType will let this function know what days to let the guest select from, it will then take the dates 
