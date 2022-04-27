@@ -41,7 +41,7 @@ namespace Hotel_Reservation_System
                 //we want to run the code on our computer
 
                 string HarishFilePath = "C:\\Users\\haris\\Downloads\\connect.txt";
-                string HitsFilePath = "/Users/hits/Development/hotel-reservation-system/Hotel-Reservation-System/HitsConnectionString";
+                string HitsFilePath = "/Users/hits/Development/hotel-reservation-system/Hotel-Reservation-System/HitsConnectionString.txt";
                 string HunterFilePath = "C:\\Users\\hhowa\\Source\\Repos\\hdudeja24\\Hotel-Reservation-System\\Hotel-Reservation-System\\HunterConnectionString.txt";
                 using FileStream file = File.OpenRead(HitsFilePath); //change this variable to the string of your filepath
                 using var stream = new StreamReader(file);
