@@ -193,9 +193,18 @@ namespace Hotel_Reservation_System
                     }
                     if (EmployeeAction == "A") 
                     {
-                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+                       
+                        Console.WriteLine("Please provide file name:");
+                        string fileName = Console.ReadLine();
+                        while (fileName == "")
+                        {
+                            Console.WriteLine("Please try again: ");
+                            fileName = Console.ReadLine();
+                        }
+
+                        Console.WriteLine("Please provide file path:");
                         filePath = Console.ReadLine();
-                        while (filePath == null)
+                        while (filePath == "")
                         {
                             Console.WriteLine("Please try again: ");
                             filePath = Console.ReadLine();
