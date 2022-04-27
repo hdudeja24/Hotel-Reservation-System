@@ -23,11 +23,13 @@ namespace Hotel_Reservation_System
 
     class Program
     {
-        //This class allows the program to use the base rate as a global variable
-        //because C# does not support global variables
-        //Whenever base rate is referenced in another class, it must be done as
-        //              Program.BaseRate.baseRate;
-        //this also conatains the function that retrieves the connection strings
+       /** 
+        * This class allows the program to use the base rate as a global variable
+        * because C# does not support global variables
+        * Whenever base rate is referenced in another class, it must be done as: Program.BaseRate.baseRate;
+        * this also conatains the function that retrieves the connection strings 
+        **/
+
         public static class GlobalClass
         {
             public static string ConnectionStr()
@@ -39,9 +41,9 @@ namespace Hotel_Reservation_System
                 //we want to run the code on our computer
 
                 string HarishFilePath = "C:\\Users\\haris\\Downloads\\connect.txt";
-                string HitsFilePath;
+                string HitsFilePath = "/Users/hits/Development/hotel-reservation-system/Hotel-Reservation-System/HitsConnectionString";
                 string HunterFilePath = "C:\\Users\\hhowa\\Source\\Repos\\hdudeja24\\Hotel-Reservation-System\\Hotel-Reservation-System\\HunterConnectionString.txt";
-                using FileStream file = File.OpenRead(HarishFilePath); //change this variable to the string of your filepath
+                using FileStream file = File.OpenRead(HitsFilePath); //change this variable to the string of your filepath
                 using var stream = new StreamReader(file);
                 return stream.ReadLine();
             }
@@ -167,18 +169,18 @@ namespace Hotel_Reservation_System
                     string EmployeeAction;
                     string filePath = "";
                     Console.WriteLine("\nWhat function would you like to perform?");
-                    Console.WriteLine(" 'A' - Daily Arrivals Report; 'O' - Daily Occupancy Report; 'L' - Log Out");
+                    Console.WriteLine(" 'A' - Daily Arrivals Report; 'O' - Daily Occupancy Report; 'B' - Accommodation Bills; 'L' - Log Out");
 
                     while (true) //only let users enter a valid command
                     {
                         EmployeeAction = Console.ReadLine();
-                        if ((EmployeeAction == "L") || (EmployeeAction == "A") || (EmployeeAction == "O"))
+                        if ((EmployeeAction == "L") || (EmployeeAction == "A") || (EmployeeAction == "O") || (EmployeeAction == "B"))
                         {
                             break;
                         }
                         else
                         {
-                            Console.WriteLine("Enter a valid action. 'A' - Daily Arrivals Report; 'O' - Daily Occupancy Report; 'L' - Log Out");
+                            Console.WriteLine(" 'A' - Daily Arrivals Report; 'O' - Daily Occupancy Report; 'B' - Accommodation Bills; 'L' - Log Out");
                         }
                     }
                     //once the employee enters a valid command, perform it
@@ -203,8 +205,27 @@ namespace Hotel_Reservation_System
                     }
                     if (EmployeeAction == "O") 
                     {
-                        
-
+                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+                        filePath = Console.ReadLine();
+                        while (filePath == null)
+                        {
+                            Console.WriteLine("Please try again: ");
+                            filePath = Console.ReadLine();
+                        }
+                        DateTime date = DateTime.Now;
+                        Report.dailyOccupancy(filePath, date);
+                    }
+                    if (EmployeeAction == "B")
+                    {
+                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+                        filePath = Console.ReadLine();
+                        while (filePath == null)
+                        {
+                            Console.WriteLine("Please try again: ");
+                            filePath = Console.ReadLine();
+                        }
+                        DateTime date = DateTime.Now;
+                        Report.accommodationBill(filePath, date);
                     }
                 }
             }
@@ -453,6 +474,58 @@ namespace Hotel_Reservation_System
             Console.WriteLine("Daily Arrival Report successfully created in desired directory.");
         }
 
+        public static void dailyOccupancy(string filePath, DateTime date)
+        {
+            //the sql select command  to get all rows corresponding to startDate = date
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' ORDER BY Fname", newConnection);
+            SelectTest.Connection.Open();
+            SqlDataReader sqlReader;
+            using StreamWriter sw = File.CreateText(filePath);
+            sw.WriteLine("First Name Last Name   Reservation type   Date of Departure");
+            try
+            {
+                sqlReader = SelectTest.ExecuteReader();
+                while (sqlReader.Read())
+                {
+                    sw.WriteLine(String.Format("{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Error occurred while attempting SELECT.");
+            }
+            SelectTest.Connection.Close();
+            Console.WriteLine("Daily Occupancy Report successfully created in desired directory.");
+        }
+
+        public static void accommodationBill(string filePath, DateTime date)
+        {
+            //the sql select command  to get all rows corresponding to startDate = date
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' ORDER BY Fname", newConnection);
+            SelectTest.Connection.Open();
+            SqlDataReader sqlReader;
+            using StreamWriter sw = File.CreateText(filePath);
+            sw.WriteLine("First Name Last Name   Reservation type   Date of Departure");
+            try
+            {
+                sqlReader = SelectTest.ExecuteReader();
+                while (sqlReader.Read())
+                {
+                    sw.WriteLine(String.Format("{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Error occurred while attempting SELECT.");
+            }
+            SelectTest.Connection.Close();
+            Console.WriteLine("Daily Occupancy Report successfully created in desired directory.");
+        }
+
     }
 
     public class Reservation
@@ -511,7 +584,7 @@ namespace Hotel_Reservation_System
             }
             if (selectReservation == "I")
             {
-                //IncentReserve();
+                IncentReserve();
             }
         }
 
