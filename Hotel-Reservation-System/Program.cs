@@ -212,29 +212,47 @@ namespace Hotel_Reservation_System
                         DateTime date = DateTime.Now;
                         Report.dailyArrivals(filePath, date);
                     }
-                    if (EmployeeAction == "O") 
+                    if (EmployeeAction == "O")
                     {
-                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+
+                        Console.WriteLine("Please provide file name:");
+                        string fileName = Console.ReadLine();
+                        while (fileName == "")
+                        {
+                            Console.WriteLine("Please try again: ");
+                            fileName = Console.ReadLine();
+                        }
+
+                        Console.WriteLine("Please provide file path:");
                         filePath = Console.ReadLine();
-                        while (filePath == null)
+                        while (filePath == "")
                         {
                             Console.WriteLine("Please try again: ");
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.dailyOccupancy(filePath, date);
+                        Report.dailyArrivals(filePath, date);
                     }
                     if (EmployeeAction == "B")
                     {
-                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+
+                        Console.WriteLine("Please provide file name:");
+                        string fileName = Console.ReadLine();
+                        while (fileName == "")
+                        {
+                            Console.WriteLine("Please try again: ");
+                            fileName = Console.ReadLine();
+                        }
+
+                        Console.WriteLine("Please provide file path:");
                         filePath = Console.ReadLine();
-                        while (filePath == null)
+                        while (filePath == "")
                         {
                             Console.WriteLine("Please try again: ");
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.accommodationBill(filePath, date);
+                        Report.dailyArrivals(filePath, date);
                     }
                 }
             }
@@ -492,13 +510,17 @@ namespace Hotel_Reservation_System
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
             using StreamWriter sw = File.CreateText(filePath);
-            sw.WriteLine("First Name Last Name   Reservation type   Date of Departure");
+            sw.WriteLine("First Name Last Name   Date of Departure");
             try
             {
                 sqlReader = SelectTest.ExecuteReader();
                 while (sqlReader.Read())
                 {
-                    sw.WriteLine(String.Format("{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                    if(date.ToString("yyyy-MM-dd") == sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")) {
+
+                       sw.WriteLine(String.Format("{*}{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                    }
+                    
                 }
             }
             catch
@@ -1123,6 +1145,40 @@ namespace Hotel_Reservation_System
         //
         public static void CancelReserve(string FName, string LName)
         {
+            string reserveType = getReserveType(FName, LName);
+            string startDay = getStartDate(FName, LName);
+            string endDay = getEndDate(FName, LName);
+            string date = DateTime.Now.ToString("yyyy-MM-dd");
+            DateTime start = DateTime.ParseExact(startDay, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime end = DateTime.ParseExact(endDay, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime today = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+
+            int startDif = (start.Date - today.Date).Days; //how far away is the start date from today
+            int endDif = (end.Date - today.Date).Days;  //how far away is the end date from today
+
+            for (int i = startDif; i < endDif; i++)
+            {
+                if (reserveType == "convent")
+                {
+                    income_array[i] -= baseRate[i];
+                    num_ConventionalReservation[i]--;
+                }
+                else if (reserveType == "prepaid")
+                {
+                    income_array[i] -= (baseRate[i] * .75);
+                    num_PrepaidReservation[i]--;
+                }
+                else if (reserveType == "sixty")
+                {
+                    income_array[i] -= (baseRate[i] * .85);
+                    num_60DayReservation[i]--;
+                }
+                else if (reserveType == "incent")
+                {
+                    income_array[i] -= (incentiveDiscount[i]);
+                    num_IncentiveReservation[i]--;
+                }
+            }
             using SqlConnection newConnection = new(Program.GlobalClass.ConnectionStr());
             SqlCommand DeleteTest = new("DELETE FROM Reservations WHERE FName = '" + FName + "' AND LName = '" + LName + "'", newConnection);
             DeleteTest.Connection.Open();
