@@ -53,6 +53,13 @@ namespace Hotel_Reservation_System
         static void Main(string[] args)
         {
             Reservation.initializeBaseRateArr();
+            Reservation.initialize_OccupiedRooms();
+            Reservation.initialize_Prepaid();
+            Reservation.initialize_Sixty();
+            Reservation.initialize_Convent();
+            Reservation.initialize_Incentive();
+            Reservation.initialize_Income();
+            Reservation.initialize_Incentive();
         //here is the login, the user will enter the role they want to login as, must be a guest, employee, or manager
         Login:
             string login;
@@ -380,7 +387,62 @@ namespace Hotel_Reservation_System
                 return isGoodDouble;
             }
         }
+
+        // Uses the cc_number to confirm the guest has made a reservation and checks in the guest.
+        public static void checkIn(string cc_number) 
+        {
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE CCNum = '" + cc_number  + "' ", newConnection);
+            SelectTest.Connection.Open();
+            SqlDataReader sqlReader, sqlReader2;
+            try
+            {
+                sqlReader = SelectTest.ExecuteReader();
+                if (sqlReader.Read())
+                {
+                    SqlCommand SelectTest2 = new("SELECT * FROM Reservations WHERE startDate <= '" + DateTime.Now.ToString("yyyy-MM-DD") + "' AND endDate > '" + DateTime.Now.ToString("yyyy-MM-DD") + "' ", newConnection);
+                    SelectTest2.Connection.Open();
+                    sqlReader2 = SelectTest2.ExecuteReader();
+                    Random rand = new Random();
+                    int room_Number = rand.Next(1, 46);
+                    while (sqlReader2.Read())
+                    {
+                        if (room_Number == Convert.ToInt32(sqlReader2.GetString(10)))
+                            room_Number = rand.Next(1, 46);
+                    }
+                    SelectTest2.Connection.Close();
+                    SqlCommand InsertTest = new("INSERT INTO Reservations(roomNum) VALUES ('" + Convert.ToString(room_Number) + "')", newConnection);
+                    Console.WriteLine("Check in confirmation. Your room number is " + room_Number);
+                    InsertTest.Connection.Open();
+                    try
+                    {
+                        if (InsertTest.ExecuteNonQuery() > 0)
+                            Console.WriteLine("INSERT statement successful");
+                        else
+                            Console.WriteLine("Insert statement FAILED!");
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Error occurred while attempting INSERT.");
+                    }
+                    InsertTest.Connection.Close();
+
+                }
+                else 
+                {
+                    Console.WriteLine("Reservation cannot be found.");
+                }
+            }
+            catch
+            {
+                Console.WriteLine("Error occurred while attempting SELECT.");
+            }
+            SelectTest.Connection.Close();
+
+        }
     }
+    
 
     public class Report
     {
@@ -555,6 +617,190 @@ namespace Hotel_Reservation_System
             {
                 baseRate[i] = 100.00;
             }
+        }
+
+        //This function is to initialize the other global arrays
+        public static void initialize_OccupiedRooms() 
+        {
+            DateTime now = DateTime.Now;
+            int count = 0;
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            for (int i = 0; i < 365; i++) 
+            {
+                SqlCommand SelectTest = new("SELECT count(*) FROM Reservations WHERE startDate <= '"+now.ToString("yyyy-MM-dd")+ "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "' ", newConnection);
+                SelectTest.Connection.Open();
+                try
+                {
+                     count = (Int32)SelectTest.ExecuteScalar();
+                     num_OccupiedRooms[i] = count;
+                }
+                catch
+                {
+                    Console.WriteLine("Error occurred while attempting SELECT.");
+                }
+                SelectTest.Connection.Close();
+
+            }
+            now = now.AddDays(1);
+        }
+
+        public static void initialize_Prepaid()
+        {
+            DateTime now = DateTime.Now;
+            int count = 0;
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            for (int i = 0; i < 365; i++)
+            {
+                SqlCommand SelectTest = new("SELECT count(*) FROM Reservations WHERE startDate <= '" + now.ToString("yyyy-MM-dd") + "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "' AND reserveType = 'prepaid' ", newConnection);
+                SelectTest.Connection.Open();
+                try
+                {
+                    count = (Int32)SelectTest.ExecuteScalar();
+                    num_PrepaidReservation[i] = count;
+                }
+                catch
+                {
+                    Console.WriteLine("Error occurred while attempting SELECT.");
+                }
+                SelectTest.Connection.Close();
+
+            }
+            now = now.AddDays(1);
+        }
+
+        public static void initialize_Sixty()
+        {
+            DateTime now = DateTime.Now;
+            int count = 0;
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            for (int i = 0; i < 365; i++)
+            {
+                SqlCommand SelectTest = new("SELECT count(*) FROM Reservations WHERE startDate <= '" + now.ToString("yyyy-MM-dd") + "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "' AND reserveType = 'sixty' ", newConnection);
+                SelectTest.Connection.Open();
+                try
+                {
+                    count = (Int32)SelectTest.ExecuteScalar();
+                    num_60DayReservation[i] = count;
+                }
+                catch
+                {
+                    Console.WriteLine("Error occurred while attempting SELECT.");
+                }
+                SelectTest.Connection.Close();
+
+            }
+            now = now.AddDays(1);
+        }
+
+        public static void initialize_Convent()
+        {
+            DateTime now = DateTime.Now;
+            int count = 0;
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            for (int i = 0; i < 365; i++)
+            {
+                SqlCommand SelectTest = new("SELECT count(*) FROM Reservations WHERE startDate <= '" + now.ToString("yyyy-MM-dd") + "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "' AND reserveType = 'convent' ", newConnection);
+                SelectTest.Connection.Open();
+                try
+                {
+                    count = (Int32)SelectTest.ExecuteScalar();
+                    num_ConventionalReservation[i] = count;
+                }
+                catch
+                {
+                    Console.WriteLine("Error occurred while attempting SELECT.");
+                }
+                SelectTest.Connection.Close();
+
+            }
+            now = now.AddDays(1);
+        }
+
+        public static void initialize_Incentive()
+        {
+            DateTime now = DateTime.Now;
+            int count = 0;
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            for (int i = 0; i < 365; i++)
+            {
+                SqlCommand SelectTest = new("SELECT count(*) FROM Reservations WHERE startDate <= '" + now.ToString("yyyy-MM-dd") + "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "' AND reserveType = 'incent' ", newConnection);
+                SelectTest.Connection.Open();
+                try
+                {
+                    count = (Int32)SelectTest.ExecuteScalar();
+                    num_IncentiveReservation[i] = count;
+                }
+                catch
+                {
+                    Console.WriteLine("Error occurred while attempting SELECT.");
+                }
+                SelectTest.Connection.Close();
+
+            }
+            now = now.AddDays(1);
+        }
+
+        public static void initialize_Income()
+        {
+            DateTime now = DateTime.Now;
+            int count = 0;
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            for (int i = 0; i < 365; i++)
+            {
+                SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate <= '" + now.ToString("yyyy-MM-dd") + "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "'", newConnection);
+                SelectTest.Connection.Open();
+                SqlDataReader sqlReader;
+                try
+                {
+                    sqlReader = SelectTest.ExecuteReader();
+                    while(sqlReader.Read())
+                    {
+                        income_array[i] += (int)sqlReader.GetDecimal(9) / ((sqlReader.GetDateTime(6).Date - sqlReader.GetDateTime(5).Date).Days+1);
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Error occurred while attempting SELECT.");
+                }
+                SelectTest.Connection.Close();
+
+            }
+            now = now.AddDays(1);
+        }
+
+        public static void initialize_Discount()
+        {
+            DateTime now = DateTime.Now;
+            int count = 0;
+            string ConnectionStr = Program.GlobalClass.ConnectionStr();
+            using SqlConnection newConnection = new(ConnectionStr);
+            for (int i = 0; i < 365; i++)
+            {
+                SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate <= '" + now.ToString("yyyy-MM-dd") + "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "' AND reserveType = 'incent'", newConnection);
+                SelectTest.Connection.Open();
+                SqlDataReader sqlReader;
+                try
+                {
+                    sqlReader = SelectTest.ExecuteReader();
+                    while (sqlReader.Read())
+                    {
+                        incentiveDiscount[i] += ((int)sqlReader.GetDecimal(9) / ((sqlReader.GetDateTime(6).Date - sqlReader.GetDateTime(5).Date).Days + 1))/4;
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Error occurred while attempting SELECT.");
+                }
+                SelectTest.Connection.Close();
+
+            }
+            now = now.AddDays(1);
         }
 
         //Here is where guests choose which reservation type they will make
@@ -1071,6 +1317,51 @@ namespace Hotel_Reservation_System
              */
             if (reserveType == "incent")
             {
+                string today = DateTime.Now.ToString("yyyy-MM-dd"); //today
+                Console.WriteLine("Select a day at or after " + today);
+            SelectIncentiveDays:
+                while (true) //we need a date in the correct format that is at least today
+                {
+                    Console.WriteLine("Enter a starting day for your reservation in format yyyy-MM-dd");
+                    startDay = Console.ReadLine();
+                    if (ValidDate(startDay) == true) //if were in the correct format
+                    {
+                        int a = String.Compare(startDay, today);
+                        if (a < 0) //if start day is before incentive day it is invalid
+                        {
+                            Console.WriteLine("Start date must be at least " + today);
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                while (true) //end date must be a valid number
+                {
+                    Console.WriteLine("Enter an end date in yyyy-MM-dd format.");
+                    endDay = Console.ReadLine();
+                    if (ValidDate(endDay) == true)
+                    {
+                        int a = String.Compare(startDay, endDay); //it must be after the start date
+                        if (a >= 0)
+                        {
+                            Console.WriteLine("End date must be after start date");
+                            continue;
+                        }
+                        break;
+                    }
+                }
+                //make sure there is an occupancy for the duration
+                bool goodDuration = CheckDays(startDay, endDay, reserveType);
+
+                if (goodDuration == true)
+                {
+                    days[0] = startDay;
+                    days[1] = endDay;
+                    return days; //return the array storing our start and end days
+                }
+                Console.WriteLine("There is an occupancy conflict for that duration.");
+                Console.WriteLine("Please choose a different duration of stay.");
+                goto SelectIncentiveDays;
                 return days;
             }
             return days;
