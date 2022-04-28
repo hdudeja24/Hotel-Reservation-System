@@ -194,15 +194,7 @@ namespace Hotel_Reservation_System
                     if (EmployeeAction == "A") 
                     {
                        
-                        Console.WriteLine("Please provide file name:");
-                        string fileName = Console.ReadLine();
-                        while (fileName == "")
-                        {
-                            Console.WriteLine("Please try again: ");
-                            fileName = Console.ReadLine();
-                        }
-
-                        Console.WriteLine("Please provide file path:");
+                        Console.WriteLine("Please provide file name.txt:");
                         filePath = Console.ReadLine();
                         while (filePath == "")
                         {
@@ -215,15 +207,7 @@ namespace Hotel_Reservation_System
                     if (EmployeeAction == "O")
                     {
 
-                        Console.WriteLine("Please provide file name:");
-                        string fileName = Console.ReadLine();
-                        while (fileName == "")
-                        {
-                            Console.WriteLine("Please try again: ");
-                            fileName = Console.ReadLine();
-                        }
-
-                        Console.WriteLine("Please provide file path:");
+                        Console.WriteLine("Please provide file name.txt:");
                         filePath = Console.ReadLine();
                         while (filePath == "")
                         {
@@ -236,15 +220,7 @@ namespace Hotel_Reservation_System
                     if (EmployeeAction == "B")
                     {
 
-                        Console.WriteLine("Please provide file name:");
-                        string fileName = Console.ReadLine();
-                        while (fileName == "")
-                        {
-                            Console.WriteLine("Please try again: ");
-                            fileName = Console.ReadLine();
-                        }
-
-                        Console.WriteLine("Please provide file path:");
+                        Console.WriteLine("Please provide file name.txt:");
                         filePath = Console.ReadLine();
                         while (filePath == "")
                         {
@@ -518,7 +494,7 @@ namespace Hotel_Reservation_System
                 {
                     if(date.ToString("yyyy-MM-dd") == sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")) {
 
-                       sw.WriteLine(String.Format("{*}{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                       sw.WriteLine(String.Format("*{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
                     }
                     
                 }
@@ -540,7 +516,7 @@ namespace Hotel_Reservation_System
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
             using StreamWriter sw = File.CreateText(filePath);
-            sw.WriteLine("First Name Last Name   Reservation type   Date of Departure");
+            sw.WriteLine("Date          First Name Last Name Date of Arrival  Date of Departure Number of nights  Total Charge");
             try
             {
                 sqlReader = SelectTest.ExecuteReader();
