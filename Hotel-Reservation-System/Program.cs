@@ -522,7 +522,7 @@ namespace Hotel_Reservation_System
                 sqlReader = SelectTest.ExecuteReader();
                 while (sqlReader.Read())
                 {
-                    sw.WriteLine(String.Format("{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                    sw.WriteLine(String.Format("*{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
                 }
             }
             catch
