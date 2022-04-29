@@ -41,11 +41,11 @@ namespace Hotel_Reservation_System
                 //we want to run the code on our computer
 
                 string HarishFilePath = "C:\\Users\\haris\\Downloads\\connect.txt";
+                string HunterConnectionString = "Data Source=Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=Hotel;Data Source=HUNTER";
                 string HitsFilePath = "/Users/hits/Development/hotel-reservation-system/Hotel-Reservation-System/HitsConnectionString.txt";
-                string HunterFilePath = "C:\\Users\\hhowa\\Source\\Repos\\hdudeja24\\Hotel-Reservation-System\\Hotel-Reservation-System\\HunterConnectionString.txt";
-                using FileStream file = File.OpenRead(HarishFilePath); //change this variable to the string of your filepath
-                using var stream = new StreamReader(file);
-                return stream.ReadLine();
+                //using FileStream file = File.OpenRead(HarishFilePath); //change this variable to the string of your filepath
+                //using var stream = new StreamReader(file);
+                return HunterConnectionString;
             }
         }
 
