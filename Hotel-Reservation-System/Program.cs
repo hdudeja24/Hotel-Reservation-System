@@ -88,7 +88,7 @@ namespace Hotel_Reservation_System
                     {
                         GuestAction = Console.ReadLine();
 
-                        if ((GuestAction == "M") || (GuestAction == "C") || (GuestAction == "R") || (GuestAction == "A") || (GuestAction == "L") || (GuestAction == 'I'))
+                        if ((GuestAction == "M") || (GuestAction == "C") || (GuestAction == "R") || (GuestAction == "A") || (GuestAction == "L") || (GuestAction == "I"))
                         {
                             break;
                         }
@@ -588,7 +588,7 @@ namespace Hotel_Reservation_System
                 sqlReader = SelectTest.ExecuteReader();
                 while (sqlReader.Read())
                 {
-                    sw.WriteLine(String.Format("{0,-11} {1,-12} {2,-19} {3,-10}", sqlReader.DateTime(6).ToString(), sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(10), sqlReader.GetString(5), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                    sw.WriteLine(String.Format("{0,-11} {1,-12} {2,-19} {3,-10}", sqlReader.GetDateTime(6).ToString(), sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(10), sqlReader.GetString(5), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
                 }
             }
             catch
