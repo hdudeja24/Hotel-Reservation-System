@@ -30,13 +30,13 @@ namespace Hotel_Reservation_System
             {
                 //create a string variable containing your connection string here
                 //make sure that this function is returning the string containing your 
-                //connection string
+                //connection string // every part of the connection string should be 
+                //the same as it is in the string HunterConnectionString except:
+                //      the last field should be changed to be " Data Source='your database server name here' " 
 
-                string HarishFilePath = "C:\\Users\\haris\\Downloads\\connect.txt";
+                //string HarishFilePath = "C:\\Users\\haris\\Downloads\\connect.txt";
+                //string HitsFilePath = "/Users/hits/Development/hotel-reservation-system/Hotel-Reservation-System/HitsConnectionString.txt";
                 string HunterConnectionString = "Data Source=Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=Hotel;Data Source=HUNTER";
-                string HitsFilePath = "/Users/hits/Development/hotel-reservation-system/Hotel-Reservation-System/HitsConnectionString.txt";
-                //using FileStream file = File.OpenRead(HarishFilePath); //change this variable to the string of your filepath
-                //using var stream = new StreamReader(file);
                 return HunterConnectionString;
             }
         }
@@ -44,6 +44,7 @@ namespace Hotel_Reservation_System
 
         static void Main(string[] args)
         {
+            //start the program by getting all information from the database for continuity over multiple runs
             Reservation.initializeBaseRateArr();
             Reservation.initialize_OccupiedRooms();
             Reservation.initialize_Prepaid();
@@ -52,7 +53,8 @@ namespace Hotel_Reservation_System
             Reservation.initialize_Incentive();
             Reservation.initialize_Income();
             Reservation.initialize_Incentive();
-        //here is the login, the user will enter the role they want to login as, must be a guest, employee, or manager
+
+        //here is the login, the user will enter the role they want to login as, must be a Guest, Employee, or Manager
         Login:
             string login;
             Console.WriteLine("Welcome. Are you signing in as a 'Guest', 'Employee', or 'Manager'?");
@@ -79,10 +81,9 @@ namespace Hotel_Reservation_System
                 while (true)
                 {
                     string GuestAction;
-                    Console.WriteLine("\nWould you like to 'M'ake, 'C'ancel, or 'R'eschedule a reservation?");
-                    Console.WriteLine("Or, if you've already made a 60-Day reservation, 'A'dd your credit card info?");
-                    Console.WriteLine("Enter 'L' to log out.");
-
+                    Console.WriteLine("\nWhat function would you like to perform?");
+                    Console.WriteLine(" 'M' - Make Reservation; 'C' - Cancel Reservation; 'R' - Reschedule Reservation;");
+                    Console.WriteLine(" 'A' - Add Credit Card Info; 'L' - Logout;");
                     while (true) // only let users enter a valid command
                     {
                         GuestAction = Console.ReadLine();
@@ -97,16 +98,13 @@ namespace Hotel_Reservation_System
                         }
                     }
                     //once the user enters a valid command, perform command
-
-                    //add any more guest actions here
-
                     if (GuestAction == "M") //Making a reservation
                     {
                         Reservation.MakeReservation();
                     }
                     if (GuestAction == "R") //reschedule a reservation
                     {
-
+                        //getting guests name
                         Console.WriteLine("Enter your first name:");
                         string FName = Console.ReadLine();
                         Console.WriteLine("Enter your last name:");
@@ -154,9 +152,7 @@ namespace Hotel_Reservation_System
                     }
                 }
             }
-
             //actions that can be performed as an employee
-            //
             if (login == "Employee")
             {
                 while (true)
@@ -228,7 +224,6 @@ namespace Hotel_Reservation_System
                 }
             }
             //actions that can be performed as a manager
-            //Changing base rate, loging out
             if (login == "Manager")
             {
                 while (true)
@@ -251,9 +246,6 @@ namespace Hotel_Reservation_System
                         }
                     }
                     //once the manager enters a valid command, perform it
-
-                    //add all manager actions here
-
                     if (ManagerAction == "C")
                     {
                         Hotel.ChangeBaseRate();
