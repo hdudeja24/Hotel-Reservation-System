@@ -1314,8 +1314,8 @@ namespace Hotel_Reservation_System
              */
             if (reserveType == "incent")
             {
-                string today = DateTime.Now.ToString("yyyy-MM-dd"); //today
-                Console.WriteLine("Select a day at or after " + today);
+                string incentDate = DateTime.Now.AddDays(30).ToString("yyyy-MM-dd"); //30 days from today
+                Console.WriteLine("Select a day before " + incentDate);
             SelectIncentiveDays:
                 while (true) //we need a date in the correct format that is at least today
                 {
@@ -1323,10 +1323,10 @@ namespace Hotel_Reservation_System
                     startDay = Console.ReadLine();
                     if (ValidDate(startDay) == true) //if were in the correct format
                     {
-                        int a = String.Compare(startDay, today);
-                        if (a < 0) //if start day is before incentive day it is invalid
+                        int a = String.Compare(startDay, incentDate);
+                        if (a >= 0) //if start day is after incentive day it is invalid
                         {
-                            Console.WriteLine("Start date must be at least " + today);
+                            Console.WriteLine("Start date must be before " + incentDate);
                             continue;
                         }
                         break;
