@@ -3,19 +3,6 @@ using System.IO;
 using System.Data.SqlClient;
 
 
-/*
- * Hunter's Functions: ConnectionStr(); initializeBaseArr(); changeBaseRate(); 
- *                     IsDouble(); MakeReservation(); PrepaidReserve(); SixtyDayReserve()
- *                     ConvReserve(); SelectDays(); CheckDays(); Cancelreserve();
- *                     GetReserveType(); GetStartDate; GetEndDate(); GetDayOneBaseRate();
- *                     Add_CC_Info(); CC_Payment() RescheduleReserve();
- * 
- * 
- * 
- * 
- * 
- */
-
 
 namespace Hotel_Reservation_System
 {
