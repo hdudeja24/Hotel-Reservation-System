@@ -82,19 +82,19 @@ namespace Hotel_Reservation_System
                 {
                     string GuestAction;
                     Console.WriteLine("\nWhat function would you like to perform?");
-                    Console.WriteLine(" 'M' - Make Reservation; 'C' - Cancel Reservation; 'R' - Reschedule Reservation;");
+                    Console.WriteLine("\nWould you like to 'M'ake, 'C'ancel, Check 'I'n or 'R'eschedule a reservation?");
                     Console.WriteLine(" 'A' - Add Credit Card Info; 'L' - Logout;");
                     while (true) // only let users enter a valid command
                     {
                         GuestAction = Console.ReadLine();
 
-                        if ((GuestAction == "M") || (GuestAction == "C") || (GuestAction == "R") || (GuestAction == "A") || (GuestAction == "L"))
+                        if ((GuestAction == "M") || (GuestAction == "C") || (GuestAction == "R") || (GuestAction == "A") || (GuestAction == "L") || (GuestAction == 'I'))
                         {
                             break;
                         }
                         else
                         {
-                            Console.WriteLine("Invalid Action. Enter 'M'ake, 'C'ancel, 'R'eschedule, 'A'dd, 'L'ogout.");
+                            Console.WriteLine("Invalid Action. Enter 'M'ake, 'C'ancel, 'R'eschedule, Check 'I'n, 'A'dd, 'L'ogout.");
                         }
                     }
                     //once the user enters a valid command, perform command
@@ -144,6 +144,17 @@ namespace Hotel_Reservation_System
                     if (GuestAction == "A") //adding credit card info to a 60-day
                     {
                         Reservation.Add_CC_Info();
+                    }
+                    if(GuestAction == "I") 
+                    {
+                        Console.WriteLine("Enter Credit Card number: ");
+                        string cc_Num = Console.ReadLine();
+                        while (!Reservation.CC_payment(cc_Num)) 
+                        {
+                            Console.WriteLine("Incorrect credit card number. Try again:");
+                            cc_Num = Console.ReadLine();
+                        }
+                        Hotel.checkIn(cc_Num);
                     }
                     if (GuestAction == "L") // logging out
                     {
@@ -260,7 +271,7 @@ namespace Hotel_Reservation_System
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.dailyArrivals(filePath, date);
+                        Report.expectedOccupancy(filePath, date);
                     }
                     if (ManagerAction == "E")
                     {
@@ -273,7 +284,7 @@ namespace Hotel_Reservation_System
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.dailyArrivals(filePath, date);
+                        Report.roomIncomeReport(filePath, date);
                     }
                     if (ManagerAction == "I")
                     {
@@ -286,7 +297,7 @@ namespace Hotel_Reservation_System
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.dailyArrivals(filePath, date);
+                        Report.incentiveReport(filePath, date);
                     }
                     if (ManagerAction == "L")
                     {
@@ -370,37 +381,45 @@ namespace Hotel_Reservation_System
             }
         }
 
-        // Uses the cc_number to confirm the guest has made a reservation and checks in the guest.
+         // Uses the cc_number to confirm the guest has made a reservation and checks in the guest.
         public static void checkIn(string cc_number)
         {
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
             SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE CCNum = '" + cc_number + "' ", newConnection);
             SelectTest.Connection.Open();
+            DateTime now = DateTime.Now;
             SqlDataReader sqlReader, sqlReader2;
             try
             {
                 sqlReader = SelectTest.ExecuteReader();
                 if (sqlReader.Read())
                 {
-                    SqlCommand SelectTest2 = new("SELECT * FROM Reservations WHERE startDate <= '" + DateTime.Now.ToString("yyyy-MM-DD") + "' AND endDate > '" + DateTime.Now.ToString("yyyy-MM-DD") + "' ", newConnection);
-                    SelectTest2.Connection.Open();
-                    sqlReader2 = SelectTest2.ExecuteReader();
+                    SelectTest.Connection.Close();
+                    SelectTest = new("SELECT * FROM Reservations WHERE startDate <= '" + now + "' AND endDate > '" + now + "' AND roomNum IS NOT NULL", newConnection);
+                    SelectTest.Connection.Open();
+                    NumberTaken:
+                    sqlReader2 = SelectTest.ExecuteReader();
                     Random rand = new Random();
                     int room_Number = rand.Next(1, 46);
                     while (sqlReader2.Read())
                     {
+                        if (sqlReader2.GetString(10) == null) 
+                        {
+                            continue;
+                        }
                         if (room_Number == Convert.ToInt32(sqlReader2.GetString(10)))
-                            room_Number = rand.Next(1, 46);
+                            goto NumberTaken;
                     }
-                    SelectTest2.Connection.Close();
-                    SqlCommand InsertTest = new("INSERT INTO Reservations(roomNum) VALUES ('" + Convert.ToString(room_Number) + "')", newConnection);
+                    SelectTest.Connection.Close();
+                    int flag = 1;
+                    SqlCommand InsertTest = new("UPDATE Reservations SET roomNum = '"+room_Number+"', checkedIn = '"+flag+"'", newConnection);
                     Console.WriteLine("Check in confirmation. Your room number is " + room_Number);
                     InsertTest.Connection.Open();
                     try
                     {
                         if (InsertTest.ExecuteNonQuery() > 0)
-                            Console.WriteLine("INSERT statement successful");
+                            Console.WriteLine("Room number saved.");
                         else
                             Console.WriteLine("Insert statement FAILED!");
                     }
@@ -420,9 +439,10 @@ namespace Hotel_Reservation_System
             {
                 Console.WriteLine("Error occurred while attempting SELECT.");
             }
-            SelectTest.Connection.Close();
+            
 
         }
+        
     }
 
 
@@ -504,14 +524,14 @@ namespace Hotel_Reservation_System
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
             using StreamWriter sw = File.CreateText(filePath);
-            sw.WriteLine("First Name   Last Name   Reservation type    Date of Departure");
+            sw.WriteLine("First Name   Last Name   Reservation type  Room Number    Date of Departure");
             try
             {
                 sqlReader = SelectTest.ExecuteReader();
                 while (sqlReader.Read())
                 {
                    
-                    sw.WriteLine(String.Format("{0,-11} {1,-12} {2,-20} {3,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                    sw.WriteLine(String.Format("{0,-11} {1,-12} {2,-20} {3,-10} {4,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetString(10), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
                 }
             }
             catch
@@ -562,13 +582,13 @@ namespace Hotel_Reservation_System
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
             using StreamWriter sw = File.CreateText(filePath);
-            sw.WriteLine("Date          First Name Last Name Date of Arrival  Date of Departure Number of nights  Total Charge");
+            sw.WriteLine("Date          First Name    Last Name  Room Number  Date of Arrival  Date of Departure Number of nights  Total Charge");
             try
             {
                 sqlReader = SelectTest.ExecuteReader();
                 while (sqlReader.Read())
                 {
-                    sw.WriteLine(String.Format("*{0,-11} {1,-12} {2,-19} {3,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                    sw.WriteLine(String.Format("{0,-11} {1,-12} {2,-19} {3,-10}", sqlReader.DateTime(6).ToString(), sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(10), sqlReader.GetString(5), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
                 }
             }
             catch
