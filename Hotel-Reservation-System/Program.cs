@@ -23,22 +23,14 @@ namespace Hotel_Reservation_System
 
     class Program
     {
-        /** 
-         * This class allows the program to use the base rate as a global variable
-         * because C# does not support global variables
-         * Whenever base rate is referenced in another class, it must be done as: Program.BaseRate.baseRate;
-         * this also conatains the function that retrieves the connection strings 
-         **/
-
+        
         public static class GlobalClass
         {
             public static string ConnectionStr()
             {
-                //you two will need to create a text file that contains your connection string to the database
-                //then you will need to create a string conatining the file path on your computer to the text
-                //file containing  your connection string, we will need to change the variable in the 
-                //File.OpenRead function below to the name of the string containing our filepath each time
-                //we want to run the code on our computer
+                //create a string variable containing your connection string here
+                //make sure that this function is returning the string containing your 
+                //connection string
 
                 string HarishFilePath = "C:\\Users\\haris\\Downloads\\connect.txt";
                 string HunterConnectionString = "Data Source=Provider=SQLOLEDB.1;Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=Hotel;Data Source=HUNTER";
@@ -112,7 +104,7 @@ namespace Hotel_Reservation_System
                     {
                         Reservation.MakeReservation();
                     }
-                    if (GuestAction == "R") //Making a reservation
+                    if (GuestAction == "R") //reschedule a reservation
                     {
 
                         Console.WriteLine("Enter your first name:");
@@ -150,10 +142,6 @@ namespace Hotel_Reservation_System
                             }
                         }
                         Reservation.CancelReserve(FName, LName);
-                    }
-                    if (GuestAction == "R") //Rescheduling a reservation
-                    {
-                        //Reservation.RescheduleReserve();
                     }
                     if (GuestAction == "A") //adding credit card info to a 60-day
                     {
