@@ -413,7 +413,7 @@ namespace Hotel_Reservation_System
                     }
                     SelectTest.Connection.Close();
                     int flag = 1;
-                    SqlCommand InsertTest = new("UPDATE Reservations SET roomNum = '"+room_Number+"', checkedIn = '"+flag+"'", newConnection);
+                    SqlCommand InsertTest = new("UPDATE Reservations SET roomNum = '"+room_Number+"', checkedIn = '"+flag+"' WHERE CCNum = '"+cc_number+"'", newConnection);
                     Console.WriteLine("Check in confirmation. Your room number is " + room_Number);
                     InsertTest.Connection.Open();
                     try
