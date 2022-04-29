@@ -206,7 +206,7 @@ namespace Hotel_Reservation_System
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.dailyArrivals(filePath, date);
+                        Report.dailyOccupancy(filePath, date);
                     }
                     if (EmployeeAction == "B")
                     {
@@ -219,7 +219,7 @@ namespace Hotel_Reservation_System
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.dailyArrivals(filePath, date);
+                        Report.accommodationBill(filePath, date);
                     }
                 }
             }
@@ -252,39 +252,41 @@ namespace Hotel_Reservation_System
                     }
                     if (ManagerAction == "O")
                     {
-                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+                        Console.WriteLine("Please provide file name.txt:");
                         filePath = Console.ReadLine();
-                        while (filePath == null)
+                        while (filePath == "")
                         {
                             Console.WriteLine("Please try again: ");
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.expectedOccupancy(filePath, date);
+                        Report.dailyArrivals(filePath, date);
                     }
                     if (ManagerAction == "E")
                     {
-                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+
+                        Console.WriteLine("Please provide file name.txt:");
                         filePath = Console.ReadLine();
-                        while (filePath == null)
+                        while (filePath == "")
                         {
                             Console.WriteLine("Please try again: ");
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.roomIncomeReport(filePath, date);
+                        Report.dailyArrivals(filePath, date);
                     }
                     if (ManagerAction == "I")
                     {
-                        Console.WriteLine("Please provide file name and path to save report in desired directory:");
+
+                        Console.WriteLine("Please provide file name.txt:");
                         filePath = Console.ReadLine();
-                        while (filePath == null)
+                        while (filePath == "")
                         {
                             Console.WriteLine("Please try again: ");
                             filePath = Console.ReadLine();
                         }
                         DateTime date = DateTime.Now;
-                        Report.incentiveReport(filePath, date);
+                        Report.dailyArrivals(filePath, date);
                     }
                     if (ManagerAction == "L")
                     {
