@@ -578,6 +578,16 @@ namespace Hotel_Reservation_System
             //the sql select command  to get all rows corresponding to startDate = date
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
+            Console.WriteLine("Enter your first name:");
+            string FName = Console.ReadLine();
+            Console.WriteLine("Enter your last name:");
+            string LName = Console.ReadLine();
+            string startDate = Reservation.getStartDate(FName, LName);
+            string endDate = Reservation.getEndDate(FName, LName);
+            DateTime start = DateTime.ParseExact(startDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+
+            int startDif = (end.Date - start.Date).Days; //how far away is the start date from today
             SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' ORDER BY Fname", newConnection);
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
@@ -588,7 +598,7 @@ namespace Hotel_Reservation_System
                 sqlReader = SelectTest.ExecuteReader();
                 while (sqlReader.Read())
                 {
-                    sw.WriteLine(String.Format("{0,-11} {1,-12} {2,-19} {3,-10}", sqlReader.GetDateTime(6).ToString(), sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(10), sqlReader.GetString(5), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                    sw.WriteLine(String.Format("{0,-11} {1,-12} {2,-12} {3,-6} {4,-11} {5,-11} {6,-12}", sqlReader.GetDateTime(6).ToString(), sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(10), sqlReader.GetString(5), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd"), startDif));
                 }
             }
             catch
