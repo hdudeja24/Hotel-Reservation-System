@@ -23,12 +23,12 @@ namespace Hotel_Reservation_System
 
     class Program
     {
-       /** 
-        * This class allows the program to use the base rate as a global variable
-        * because C# does not support global variables
-        * Whenever base rate is referenced in another class, it must be done as: Program.BaseRate.baseRate;
-        * this also conatains the function that retrieves the connection strings 
-        **/
+        /** 
+         * This class allows the program to use the base rate as a global variable
+         * because C# does not support global variables
+         * Whenever base rate is referenced in another class, it must be done as: Program.BaseRate.baseRate;
+         * this also conatains the function that retrieves the connection strings 
+         **/
 
         public static class GlobalClass
         {
@@ -43,7 +43,7 @@ namespace Hotel_Reservation_System
                 string HarishFilePath = "C:\\Users\\haris\\Downloads\\connect.txt";
                 string HitsFilePath = "/Users/hits/Development/hotel-reservation-system/Hotel-Reservation-System/HitsConnectionString.txt";
                 string HunterFilePath = "C:\\Users\\hhowa\\Source\\Repos\\hdudeja24\\Hotel-Reservation-System\\Hotel-Reservation-System\\HunterConnectionString.txt";
-                using FileStream file = File.OpenRead(HitsFilePath); //change this variable to the string of your filepath
+                using FileStream file = File.OpenRead(HarishFilePath); //change this variable to the string of your filepath
                 using var stream = new StreamReader(file);
                 return stream.ReadLine();
             }
@@ -198,9 +198,9 @@ namespace Hotel_Reservation_System
                         Console.WriteLine("Logged out.\n");
                         goto Login;
                     }
-                    if (EmployeeAction == "A") 
+                    if (EmployeeAction == "A")
                     {
-                       
+
                         Console.WriteLine("Please provide file name.txt:");
                         filePath = Console.ReadLine();
                         while (filePath == "")
@@ -282,7 +282,7 @@ namespace Hotel_Reservation_System
                         DateTime date = DateTime.Now;
                         Report.expectedOccupancy(filePath, date);
                     }
-                    if (ManagerAction == "E") 
+                    if (ManagerAction == "E")
                     {
                         Console.WriteLine("Please provide file name and path to save report in desired directory:");
                         filePath = Console.ReadLine();
@@ -294,7 +294,7 @@ namespace Hotel_Reservation_System
                         DateTime date = DateTime.Now;
                         Report.roomIncomeReport(filePath, date);
                     }
-                    if (ManagerAction == "I") 
+                    if (ManagerAction == "I")
                     {
                         Console.WriteLine("Please provide file name and path to save report in desired directory:");
                         filePath = Console.ReadLine();
@@ -389,11 +389,11 @@ namespace Hotel_Reservation_System
         }
 
         // Uses the cc_number to confirm the guest has made a reservation and checks in the guest.
-        public static void checkIn(string cc_number) 
+        public static void checkIn(string cc_number)
         {
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
-            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE CCNum = '" + cc_number  + "' ", newConnection);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE CCNum = '" + cc_number + "' ", newConnection);
             SelectTest.Connection.Open();
             SqlDataReader sqlReader, sqlReader2;
             try
@@ -429,7 +429,7 @@ namespace Hotel_Reservation_System
                     InsertTest.Connection.Close();
 
                 }
-                else 
+                else
                 {
                     Console.WriteLine("Reservation cannot be found.");
                 }
@@ -442,7 +442,7 @@ namespace Hotel_Reservation_System
 
         }
     }
-    
+
 
     public class Report
     {
@@ -458,16 +458,16 @@ namespace Hotel_Reservation_System
             while (i <= 30)
             {
                 currentDate = date.AddDays(i);
-                sw.Write(currentDate.ToString("yyyy-MM-dd") + " ");
-                sw.Write(Reservation.num_PrepaidReservation[i].ToString() + "                   ");
-                sw.Write(Reservation.num_60DayReservation[i].ToString() + "                  ");
-                sw.Write(Reservation.num_ConventionalReservation[i].ToString() + "                        ");
-                sw.Write(Reservation.num_IncentiveReservation[i].ToString() + "                     ");
+                sw.Write(currentDate.ToString("yyyy-MM-dd") + "  ");
+                sw.Write(Reservation.num_PrepaidReservation[i].ToString() + "                    ");
+                sw.Write(Reservation.num_60DayReservation[i].ToString() + "                   ");
+                sw.Write(Reservation.num_ConventionalReservation[i].ToString() + "                         ");
+                sw.Write(Reservation.num_IncentiveReservation[i].ToString() + "                      ");
                 sw.WriteLine(Reservation.num_OccupiedRooms[i].ToString());
-                occupancy_rate = ((Reservation.num_OccupiedRooms[i]) / 45) * 100 + occupancy_rate;
+                occupancy_rate = ((Reservation.num_OccupiedRooms[i]) / 45.0) * 100 + occupancy_rate;
                 i++;
             }
-            sw.WriteLine("Average Expected Occupancy Rate: " + (occupancy_rate / 30) + "%");
+            sw.WriteLine("Average Expected Occupancy Rate: " + (occupancy_rate / 30.0) + "%");
             Console.WriteLine("Expected Occupancy Report successfully created in desired directory.");
         }
 
@@ -487,12 +487,12 @@ namespace Hotel_Reservation_System
                 i++;
             }
             sw.WriteLine("Total Income for 30-day period: " + total_income);
-            sw.WriteLine("Average Income for 30-day period: " + (total_income / 30));
+            sw.WriteLine("Average Income for 30-day period: " + (total_income / 30.0));
             Console.WriteLine("Room Income Report successfully created in desired directory.");
         }
 
         //Generates the incentive report given the current date and file path. (this functions is only called by management)
-        public static void incentiveReport(string filePath, DateTime date) 
+        public static void incentiveReport(string filePath, DateTime date)
         {
             int i = 1;
             double total_discount = 0;
@@ -508,12 +508,12 @@ namespace Hotel_Reservation_System
                 i++;
             }
             sw.WriteLine("Total Incentive Discount for 30-day period: " + total_discount);
-            sw.WriteLine("Average Incentive Discount for 30-day period: " + (total_discount / 30));
+            sw.WriteLine("Average Incentive Discount for 30-day period: " + (total_discount / 30.0));
             Console.WriteLine("Incentive Report successfully created in desired directory.");
         }
 
         // Generates list of guests who are expected to arrive on given day. Contains: guest name, reservation type, assigned room number, and date of departure.  
-        public static void dailyArrivals(string filePath, DateTime date) 
+        public static void dailyArrivals(string filePath, DateTime date)
         {
             //the sql select command  to get all rows corresponding to startDate = date
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
@@ -522,16 +522,17 @@ namespace Hotel_Reservation_System
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
             using StreamWriter sw = File.CreateText(filePath);
-            sw.WriteLine("First Name Last Name   Reservation type   Date of Departure");
+            sw.WriteLine("First Name   Last Name   Reservation type    Date of Departure");
             try
             {
                 sqlReader = SelectTest.ExecuteReader();
-                while(sqlReader.Read())
+                while (sqlReader.Read())
                 {
-                    sw.WriteLine(String.Format("{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                   
+                    sw.WriteLine(String.Format("{0,-11} {1,-12} {2,-20} {3,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
                 }
             }
-            catch 
+            catch
             {
                 Console.WriteLine("Error occurred while attempting SELECT.");
             }
@@ -554,11 +555,12 @@ namespace Hotel_Reservation_System
                 sqlReader = SelectTest.ExecuteReader();
                 while (sqlReader.Read())
                 {
-                    if(date.ToString("yyyy-MM-dd") == sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")) {
+                    if (date.ToString("yyyy-MM-dd") == sqlReader.GetDateTime(6).ToString("yyyy-MM-dd"))
+                    {
 
-                       sw.WriteLine(String.Format("*{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                        sw.WriteLine(String.Format("*{0,-11} {1,-12} {2,-19} {3,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
                     }
-                    
+
                 }
             }
             catch
@@ -584,7 +586,7 @@ namespace Hotel_Reservation_System
                 sqlReader = SelectTest.ExecuteReader();
                 while (sqlReader.Read())
                 {
-                    sw.WriteLine(String.Format("*{0,-11}{0,-12}{0,-19}{0,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
+                    sw.WriteLine(String.Format("*{0,-11} {1,-12} {2,-19} {3,-10}", sqlReader.GetString(0), sqlReader.GetString(1), sqlReader.GetString(4), sqlReader.GetDateTime(6).ToString("yyyy-MM-dd")));
                 }
             }
             catch
@@ -620,29 +622,30 @@ namespace Hotel_Reservation_System
         }
 
         //This function is to initialize the other global arrays
-        public static void initialize_OccupiedRooms() 
+        public static void initialize_OccupiedRooms()
         {
             DateTime now = DateTime.Now;
             int count = 0;
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
-            for (int i = 0; i < 365; i++) 
+            for (int i = 0; i < 365; i++)
             {
-                SqlCommand SelectTest = new("SELECT count(*) FROM Reservations WHERE startDate <= '"+now.ToString("yyyy-MM-dd")+ "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "' ", newConnection);
+                SqlCommand SelectTest = new("SELECT count(*) FROM Reservations WHERE startDate <= '" + now.ToString("yyyy-MM-dd") + "' AND endDate >= '" + now.ToString("yyyy-MM-dd") + "' ", newConnection);
                 SelectTest.Connection.Open();
                 try
                 {
-                     count = (Int32)SelectTest.ExecuteScalar();
-                     num_OccupiedRooms[i] = count;
+                    count = (Int32)SelectTest.ExecuteScalar();
+                    num_OccupiedRooms[i] = count;
                 }
                 catch
                 {
                     Console.WriteLine("Error occurred while attempting SELECT.");
                 }
                 SelectTest.Connection.Close();
+                now = now.AddDays(1);
 
             }
-            now = now.AddDays(1);
+            
         }
 
         public static void initialize_Prepaid()
@@ -665,9 +668,10 @@ namespace Hotel_Reservation_System
                     Console.WriteLine("Error occurred while attempting SELECT.");
                 }
                 SelectTest.Connection.Close();
+                now = now.AddDays(1);
 
             }
-            now = now.AddDays(1);
+           
         }
 
         public static void initialize_Sixty()
@@ -690,9 +694,10 @@ namespace Hotel_Reservation_System
                     Console.WriteLine("Error occurred while attempting SELECT.");
                 }
                 SelectTest.Connection.Close();
+                now = now.AddDays(1);
 
             }
-            now = now.AddDays(1);
+            
         }
 
         public static void initialize_Convent()
@@ -715,9 +720,10 @@ namespace Hotel_Reservation_System
                     Console.WriteLine("Error occurred while attempting SELECT.");
                 }
                 SelectTest.Connection.Close();
+                now = now.AddDays(1);
 
             }
-            now = now.AddDays(1);
+            
         }
 
         public static void initialize_Incentive()
@@ -740,9 +746,10 @@ namespace Hotel_Reservation_System
                     Console.WriteLine("Error occurred while attempting SELECT.");
                 }
                 SelectTest.Connection.Close();
+                now = now.AddDays(1);
 
             }
-            now = now.AddDays(1);
+            
         }
 
         public static void initialize_Income()
@@ -759,9 +766,9 @@ namespace Hotel_Reservation_System
                 try
                 {
                     sqlReader = SelectTest.ExecuteReader();
-                    while(sqlReader.Read())
+                    while (sqlReader.Read())
                     {
-                        income_array[i] += (int)sqlReader.GetDecimal(9) / ((sqlReader.GetDateTime(6).Date - sqlReader.GetDateTime(5).Date).Days+1);
+                        income_array[i] += (int)sqlReader.GetDecimal(9) / ((sqlReader.GetDateTime(6).Date - sqlReader.GetDateTime(5).Date).Days + 1);
                     }
                 }
                 catch
@@ -769,9 +776,10 @@ namespace Hotel_Reservation_System
                     Console.WriteLine("Error occurred while attempting SELECT.");
                 }
                 SelectTest.Connection.Close();
+                now = now.AddDays(1);
 
             }
-            now = now.AddDays(1);
+            
         }
 
         public static void initialize_Discount()
@@ -790,7 +798,7 @@ namespace Hotel_Reservation_System
                     sqlReader = SelectTest.ExecuteReader();
                     while (sqlReader.Read())
                     {
-                        incentiveDiscount[i] += ((int)sqlReader.GetDecimal(9) / ((sqlReader.GetDateTime(6).Date - sqlReader.GetDateTime(5).Date).Days + 1))/4;
+                        incentiveDiscount[i] += ((int)sqlReader.GetDecimal(9) / ((sqlReader.GetDateTime(6).Date - sqlReader.GetDateTime(5).Date).Days + 1.0)) / 4.0;
                     }
                 }
                 catch
@@ -798,9 +806,10 @@ namespace Hotel_Reservation_System
                     Console.WriteLine("Error occurred while attempting SELECT.");
                 }
                 SelectTest.Connection.Close();
+                now = now.AddDays(1);
 
             }
-            now = now.AddDays(1);
+            
         }
 
         //Here is where guests choose which reservation type they will make
@@ -1095,23 +1104,23 @@ namespace Hotel_Reservation_System
             //Calculate average expected occupancy rate
             double occupancyRate = 0;
             double average_occupancyRate = 0;
-            for (int i = startDif; i < endDif; i++) 
+            for (int i = startDif; i < endDif; i++)
             {
-                occupancyRate = occupancyRate + (Reservation.num_OccupiedRooms[i] / 45) * 100;
+                occupancyRate = occupancyRate + (Reservation.num_OccupiedRooms[i] / 45.0) * 100;
             }
             average_occupancyRate = occupancyRate / (endDif - startDif + 1);
             //Incentive reservation can only be made if average occupancy rate < 60%.
-            if (average_occupancyRate >= 60) 
+            if (average_occupancyRate >= 60)
             {
                 Console.WriteLine("Incentive Reservation does not apply for this duration.");
                 return;
             }
 
             // update the total, the income array, and the incentive_discount array.
-            for (int i = startDif; i < endDif; i++) 
+            for (int i = startDif; i < endDif; i++)
             {
-                income_array[i] += (0.80*baseRate[i]);
-                totalPrice += (0.80*baseRate[i]);
+                income_array[i] += (0.80 * baseRate[i]);
+                totalPrice += (0.80 * baseRate[i]);
                 incentiveDiscount[i] = incentiveDiscount[i] + 0.20 * baseRate[i];
             }
             double day1BaseRate = baseRate[startDif];
