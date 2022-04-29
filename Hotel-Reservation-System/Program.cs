@@ -520,11 +520,11 @@ namespace Hotel_Reservation_System
             //the sql select command  to get all rows corresponding to startDate = date
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
-            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' ORDER BY Fname", newConnection);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' AND roomNum IS NOT NULL ORDER BY Fname", newConnection);
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
             using StreamWriter sw = File.CreateText(filePath);
-            sw.WriteLine("First Name   Last Name   Reservation type  Room Number    Date of Departure");
+            sw.WriteLine("First Name   Last Name   Reservation type  Room Number  Date of Departure");
             try
             {
                 sqlReader = SelectTest.ExecuteReader();
@@ -547,7 +547,7 @@ namespace Hotel_Reservation_System
             //the sql select command  to get all rows corresponding to startDate = date
             string ConnectionStr = Program.GlobalClass.ConnectionStr();
             using SqlConnection newConnection = new(ConnectionStr);
-            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' ORDER BY Fname", newConnection);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' AND roomNum IS NOT NULL ORDER BY Fname", newConnection);
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
             using StreamWriter sw = File.CreateText(filePath);
@@ -588,7 +588,7 @@ namespace Hotel_Reservation_System
             DateTime end = DateTime.ParseExact(endDate, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 
             int startDif = (end.Date - start.Date).Days; //how far away is the start date from today
-            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' ORDER BY Fname", newConnection);
+            SqlCommand SelectTest = new("SELECT * FROM Reservations WHERE startDate = '" + date.ToString("yyyy-MM-dd") + "' AND roomNum IS NOT NULL ORDER BY Fname", newConnection);
             SelectTest.Connection.Open();
             SqlDataReader sqlReader;
             using StreamWriter sw = File.CreateText(filePath);
